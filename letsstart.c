@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "mpc.h"
 
+
+#define LASSERT(args, cond, err) if (!(cond)) {lval_del(args); return lval_err(err);}
+
 static char buffer[2048];
 
 #ifdef _WIN32
@@ -22,7 +25,7 @@ void add_history(char* unused) {
 enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR};
 enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
 
-typedef struct lval{
+typedef struct lval {
   int type;
   long num;
   char* err;
@@ -31,6 +34,10 @@ typedef struct lval{
   int count;
   struct lval** cell;
 } lval;
+
+lval* lval_join(lval* x, lval* y);
+lval* lval_eval_sexpr(lval* v);
+lval* lval_eval(lval* v);
 
 lval* lval_num(long x) {
   lval* v = malloc(sizeof(lval));
@@ -167,6 +174,62 @@ lval* lval_take(lval* v, int i) {
   return x;
 }
 
+
+
+lval* builtin_head(lval* v) {
+  LASSERT(v, v->count == 1, "Tail: to many arguments");
+  LASSERT(v, v->cell[0]->type == LVAL_QEXPR, "Tail: incorect types");
+  LASSERT(v, v->cell[0]->count > 0, "Tail: empty list");
+  /* =================================================== */
+  lval* a = lval_take(v, 0);
+  /* =================================================== */
+  while (a->count > 1) { lval_del(lval_pop(a, 1)); }
+  /* =================================================== */
+  return a;
+}
+
+lval* builtin_tail(lval* v) {
+  LASSERT(v, v->count == 1, "Tail: to many arguments");
+  LASSERT(v, v->cell[0]->type == LVAL_QEXPR, "Tail: incorect types");
+  LASSERT(v, v->cell[0]->count > 0, "Tail: empty list");
+  /* =================================================== */
+  lval* a = lval_take(v, 0);
+  /* =================================================== */
+  lval_del(lval_pop(a, 0));
+  /* =================================================== */
+  return a;
+}
+
+lval* builtin_list(lval* v) {
+  v->type = LVAL_QEXPR;
+  return v;
+}
+
+lval* builtin_join(lval* v) {
+  for (int i = 0; i < v->count; i++) {
+    LASSERT(v, v->cell[i]->type == LVAL_QEXPR, "Join: incorect types");
+  }
+
+  lval* a = lval_pop(v, 0);
+  while (v->count > 0) {
+    a = lval_join(a, lval_pop(v, 0));
+  }
+
+  return NULL;
+}
+
+
+
+lval* builtin_eval(lval* v) {
+  LASSERT(v, v->count == 1, "Eval: to many arguments");
+  LASSERT(v, v->cell[0]->type == LVAL_QEXPR, "Eval: incorect types");
+  LASSERT(v, v->cell[0]->count > 0, "Eval: empty list");
+  
+  lval* a = lval_take(v, 0);
+  a->type = LVAL_SEXPR;
+  return lval_eval(a);
+}
+
 lval* builtin_op(lval* v, char* op) {
   /* =================================================== */
   for (int i = 0; i < v->count; i++) {
@@ -207,14 +270,40 @@ lval* builtin_op(lval* v, char* op) {
 }
 
 
-lval* lval_eval_sexpr(lval* v);
-
-lval* lval_eval(lval* v) {
-  if (v->type == LVAL_SEXPR)
-    return lval_eval_sexpr(v);
-  return v;
+lval* builtin(lval* a, char* func) {
+  /* =================================================== */
+  if (strcmp(func, "list") == 0) { return builtin_list(a); }
+  if (strcmp(func, "head") == 0) { return builtin_head(a); }
+  if (strcmp(func, "tail") == 0) { return builtin_tail(a); }
+  if (strcmp(func, "join") == 0) { return builtin_join(a); }
+  if (strcmp(func, "eval") == 0) { return builtin_eval(a); }
+  if (strstr("+-/*", func))      { return builtin_op(a, func);   }
+  /* =================================================== */
+  lval_del(a);
+  /* =================================================== */
+  return lval_err("Unknown op");
 }
 
+
+
+lval* lval_join(lval* x, lval* y) {
+  /* ======================================== */
+  while (y->count > 0) {
+    x = lval_add(x, lval_pop(y, 0));
+  }
+  /* ======================================== */
+  lval_del(y);
+  /* ======================================== */
+  return x;
+}
+
+lval* lval_eval(lval* v) {
+  /* ======================================== */
+  if (v->type == LVAL_SEXPR)
+    return lval_eval_sexpr(v);
+  /* ======================================== */
+  return v;
+}
 
 lval* lval_eval_sexpr(lval* v) {
   /* ======================================== */
@@ -235,10 +324,10 @@ lval* lval_eval_sexpr(lval* v) {
   lval* f = lval_pop(v, 0);
   if (f->type != LVAL_SYM) {
     lval_del(f), lval_del(v);
-    return lval_err("SEXPR MUST START WITH SYMBOL");
+    return lval_err("Symbol Expected");
   }
   /* ======================================== */
-  lval* result =  builtin_op(v, f->sym);
+  lval* result = builtin(v, f->sym);
   /* ======================================== */
   lval_del(f);
   /* ======================================== */
@@ -257,7 +346,7 @@ int main(int argc, char** argv) {
   mpca_lang(MPCA_LANG_DEFAULT,
             "                                                        \
              number    : /-?[0-9]+/                                 ;\
-             symbol    : '+'|'-'|'*'|'/'                            ;\
+             symbol    : '+'|'-'|'*'|'/' |\"list\"| \"head\" | \"tail\" | \"join\" | \"eval\"    ;\
              sexpr     : '(' <expr>* ')'                            ;\
              qexpr     : '`' '(' <expr>* ')'                            ;\
              expr      : <number> | <symbol> | <sexpr> | <qexpr>    ;\
