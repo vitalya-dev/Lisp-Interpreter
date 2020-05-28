@@ -34,8 +34,8 @@ typedef struct lenv lenv;
 typedef lval* (*lbuiltin)(lenv*, lval*);
 
 lval* lval_join(lval* x, lval* y);
-lval* lval_eval_sexpr(lval* v);
-lval* lval_eval(lval* v);
+lval* lval_eval_sexpr(lenv* e, lval* v);
+lval* lval_eval(lenv* e, lval* v);
 lval* lval_err(char* e);
 lval* lval_copy(lval* v);
 void  lval_del(lval* v);
@@ -325,7 +325,7 @@ lval* builtin_eval(lval* v) {
   
   lval* a = lval_take(v, 0);
   a->type = LVAL_SEXPR;
-  return lval_eval(a);
+  return lval_eval(NULL, a);
 }
 
 lval* builtin_op(lval* v, char* op) {
@@ -395,18 +395,24 @@ lval* lval_join(lval* x, lval* y) {
   return x;
 }
 
-lval* lval_eval(lval* v) {
+lval* lval_eval(lenv* e, lval* v) {
   /* ======================================== */
   if (v->type == LVAL_SEXPR)
-    return lval_eval_sexpr(v);
+    return lval_eval_sexpr(e, v);
+  /* ======================================== */
+  if (v->type == LVAL_SYM)
+    return lenv_get(e, v);
+  /* ======================================== */
+  if (v->type == LVAL_SYM)
+    return lenv_get(e, v);
   /* ======================================== */
   return v;
 }
 
-lval* lval_eval_sexpr(lval* v) {
+lval* lval_eval_sexpr(lenv* e, lval* v) {
   /* ======================================== */
   for (int i = 0; i < v->count; i++)
-    v->cell[i] = lval_eval(v->cell[i]);
+    v->cell[i] = lval_eval(e, v->cell[i]);
   /* ======================================== */
   for (int i = 0; i < v->count; i++) {
     if (v->cell[i]->type == LVAL_ERR)
@@ -420,12 +426,12 @@ lval* lval_eval_sexpr(lval* v) {
     return lval_take(v, 0);
   /* ======================================== */
   lval* f = lval_pop(v, 0);
-  if (f->type != LVAL_SYM) {
+  if (f->type != LVAL_FN) {
     lval_del(f), lval_del(v);
-    return lval_err("Symbol Expected");
+    return lval_err("Function Expected");
   }
   /* ======================================== */
-  lval* result = builtin(v, f->sym);
+  lval* result = f->fn(e, v);
   /* ======================================== */
   lval_del(f);
   /* ======================================== */
@@ -464,7 +470,7 @@ int main(int argc, char** argv) {
       mpc_ast_print(r.output);
       /* ====================================== */
       /* lval* val = lval_read(((mpc_ast_t*)r.output)->children[0]); */
-      lval* val = (lval_eval(lval_read(r.output)));
+      lval* val = (lval_eval(NULL, lval_read(r.output)));
       lval_println(val);
       /* ====================================== */
       mpc_ast_delete(r.output);
