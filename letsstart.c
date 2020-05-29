@@ -44,16 +44,18 @@ lval* lval_num(long x);
 lval* lval_err(char* e);
 lval* lval_fn(lbuiltin f);
 
-
+/* ========================================== */
 lval* builtin_eval(lenv* e, lval* v);
 lval* builtin_list(lenv* e, lval* v);
 lval* builtin_head(lenv* e, lval* v);
 lval* builtin_tail(lenv* e, lval* v);
 lval* builtin_join(lenv* e, lval* v);
+lval* builtin_def(lenv* e, lval* a);
 lval* builtin_add(lenv* e, lval* v);
 lval* builtin_sub(lenv* e, lval* v);
 lval* builtin_mul(lenv* e, lval* v);
 lval* builtin_div(lenv* e, lval* v);
+/* ========================================== */
 lval* builtin_op(lval* v, char* o);
 
 struct lval {
@@ -140,6 +142,7 @@ lenv* lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "eval", builtin_eval);
   lenv_add_builtin(e, "tail", builtin_tail);
   lenv_add_builtin(e, "join", builtin_join);
+  lenv_add_builtin(e, "def",  builtin_def);
   lenv_add_builtin(e, "+",    builtin_add);
   lenv_add_builtin(e, "-",    builtin_sub);
   lenv_add_builtin(e, "*",    builtin_mul);
@@ -419,6 +422,24 @@ lval* builtin_eval(lenv* e, lval* v) {
   lval* a = lval_take(v, 0);
   a->type = LVAL_SEXPR;
   return lval_eval(e, a);
+}
+
+lval* builtin_def(lenv* e, lval* v) {
+  /* ================================================= */
+  LASSERT(v, v->cell[0]->type == LVAL_QEXPR, "Def's: qexpr expected");
+  lval* syms = v->cell[0];
+  for (int i = 0; i < syms->count; i++) {
+    LASSERT(v, syms->cell[i]->type == LVAL_SYM, "Def's: symbol expected");
+  }
+  /* ================================================= */
+  LASSERT(v, syms->count == v->count - 1, "Def's: sym/val violet");
+  for (int i = 0; i < syms->count; i++) {
+    lenv_put(e, syms->cell[i], v->cell[i+1]);
+  }
+  /* ================================================= */
+  lval_del(v);
+  /* ================================================= */
+  return lval_sexpr();
 }
 
 lval* builtin_add(lenv* e, lval* v) {
