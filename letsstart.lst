@@ -1,0 +1,2570 @@
+struct __nt_context { int esp; int info; int prev; int handler; int stable; int sindex; int ebp; };
+/* Copyright (C) 1986-2001 by Digital Mars. $Revision: 1.1.1.2 $ */
+#if 0x857 || __RCC__
+#pragma once
+#endif
+
+#ifndef __STDIO_H
+#define __STDIO_H 1
+
+#if __cplusplus
+#endif 
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#define _CRTAPI1 __cdecl
+#endif
+
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#define _CRTAPI2 __cdecl
+#endif
+
+/* Define CRTIMP */
+#ifndef _CRTIMP
+#if defined(_WIN32) && defined(_DLL)
+#else
+#define _CRTIMP
+#endif
+#endif
+
+#if __OS2__ && 4 == 4
+#else
+#define __CLIB	__cdecl
+#endif
+
+#if M_UNIX || M_XENIX || 1
+#define _NFILE	60
+#else
+#endif 
+
+
+#define SEEK_SET	0
+#define SEEK_CUR	1
+#define SEEK_END	2
+
+#ifndef NULL
+#ifdef __cplusplus
+#else
+#define NULL ((void *)0)
+#endif
+#endif
+
+#if __cplusplus
+#else
+#define __RESTRICT restrict
+#endif
+
+#if M_UNIX || M_XENIX
+#elif 4 == 4
+#define BUFSIZ		0x4000
+#else
+#endif 
+
+#if 4 == 2 && (1 || __MEDIUM__)
+#endif 
+
+#if _M_AMD64
+#else
+typedef unsigned size_t;
+#endif
+
+#ifndef __STDC__
+
+#if !defined(_WCHAR_T_DEFINED)
+typedef unsigned short wchar_t;
+#define _WCHAR_T_DEFINED 1
+#endif
+
+typedef wchar_t wint_t;
+typedef wchar_t wctype_t;
+#endif
+
+#define EOF (-1)
+
+#ifndef __STDC__
+#define WEOF (wint_t) (0xFFFF)
+#endif
+
+#ifndef __FILE_DEFINED
+#pragma pack(1)
+#define __FILE_DEFINED 1
+typedef struct _iobuf
+{
+#if M_UNIX || M_XENIX
+#elif __OS2__ && 4 == 4
+#elif 1
+	char	*_ptr;
+	int	_cnt;
+	char	*_base;
+	int	_flag;
+	int	_file;
+	int	_charbuf;
+	int	_bufsiz;
+	int	__tmpnum;
+#define _bufsize(f) ((f)->_bufsiz)
+#else
+#endif 
+} FILE;
+#pragma pack()
+#endif
+
+#define _F_RDWR 0x0003
+#define _F_READ 0x0001
+#define _F_WRIT 0x0002
+#define _F_BUF  0x0004
+#define _F_LBUF 0x0008
+#define _F_ERR  0x0010
+#define _F_EOF  0x0020
+#define _F_BIN  0x0040
+#define _F_IN   0x0080
+#define _F_OUT  0x0100
+#define _F_TERM 0x0200
+
+#ifdef M_ELF
+#endif 
+
+#if defined (_DLL)
+#else
+
+extern	FILE __cdecl _iob[60];
+
+#endif
+
+#define _IOREAD		1
+#define _IOWRT		2
+#define _IONBF		4
+#define _IOMYBUF	8
+#define _IOEOF		0x10
+#define _IOERR		0x20
+#define _IOLBF		0x40
+#define _IOSTRG         0x40
+#define _IORW		0x80
+#define _IOFBF		0
+#define _IOAPP		0x200
+#if M_UNIX || M_XENIX
+#else
+#define _IOTRAN		0x100
+#ifdef	BIGBUF
+#endif 
+#endif
+
+#define stdin	(&_iob[0])
+#define stdout	(&_iob[1])
+#define stderr	(&_iob[2])
+
+#if M_UNIX || M_XENIX
+#else
+#ifndef __STDC__
+#ifndef __NT__
+#endif 
+#endif
+#define FOPEN_MAX	20
+#if defined(_WIN32)
+#define FILENAME_MAX 256  /* 255 plus NULL */
+#else
+#endif 
+#endif
+
+#if M_UNIX || M_XENIX
+#else
+#define _P_tmpdir	"\\"
+#define _wP_tmpdir	L"\\"
+#endif
+#define P_tmpdir	_P_tmpdir
+#define wP_tmpdir	_wP_tmpdir
+#if !defined(_WIN32)
+#else
+#define L_tmpnam    sizeof(_P_tmpdir)+12
+#endif
+#define TMP_MAX		32767
+#define _SYS_OPEN       20
+#define SYS_OPEN        _SYS_OPEN
+
+typedef long fpos_t;
+
+typedef char *va_list;
+
+int	__cdecl fwide(FILE *stream, int mode);
+char *	__cdecl tmpnam(char *);
+FILE *	__cdecl fopen(const char *,const char *);
+FILE *	__cdecl _fsopen(const char *,const char *,int );
+FILE *	__cdecl freopen(const char *,const char *,FILE *);
+int	__cdecl fseek(FILE *,long,int);
+long	__cdecl ftell(FILE *);
+char *	__cdecl fgets(char *,int,FILE *);
+int	__cdecl fgetc(FILE *);
+int   __cdecl _fgetchar(void);
+int	__cdecl fflush(FILE *);
+int	__cdecl fclose(FILE *);
+int	__cdecl fputs(const char *,FILE *);
+int	__cdecl getc(FILE *);
+int	__cdecl getchar(void);
+char *	__cdecl gets(char *);
+int	__cdecl fputc(int,FILE *);
+int   __cdecl _fputchar(int);
+int	__cdecl putc(int,FILE *);
+int	__cdecl putchar(int);
+int	__cdecl puts(const char *);
+int	__cdecl ungetc(int,FILE *);
+size_t	__cdecl fread(void *,size_t,size_t,FILE *);
+size_t	__cdecl fwrite(const void *,size_t,size_t,FILE *);
+int	__cdecl printf(const char *,...);
+int	__cdecl fprintf(FILE *,const char *,...);
+int	__cdecl  vfprintf(FILE *,const char *,va_list);
+int	__cdecl  vprintf(const char *,va_list);
+int	__cdecl sprintf(char *,const char *,...);
+int	__cdecl  vsprintf(char *,const char *,va_list);
+int	__cdecl scanf(const char *,...);
+int	__cdecl fscanf(FILE *,const char *,...);
+int	__cdecl sscanf(const char *,const char *,...);
+int	__cdecl vsnprintf(char * restrict,size_t,const char * restrict,va_list);
+int	__cdecl vscanf(const char * restrict, va_list);
+int	__cdecl vfscanf(FILE * restrict, const char * restrict, va_list);
+int	__cdecl vsscanf(const char * restrict, const char * restrict, va_list);
+void	__cdecl setbuf(FILE *,char *);
+int	__cdecl setvbuf(FILE *,char *,int,size_t);
+int	__cdecl remove(const char *);
+int	__cdecl rename(const char *,const char *);
+void	__cdecl rewind(FILE *);
+void	__cdecl clearerr(FILE *);
+int	__cdecl feof(FILE *);
+int	__cdecl ferror(FILE *);
+void	__cdecl perror(const char *);
+int	__cdecl fgetpos(FILE *,fpos_t *);
+int	__cdecl fsetpos(FILE *,const fpos_t *);
+FILE *	__cdecl tmpfile(void);
+int	__cdecl _rmtmp(void);
+int     __cdecl _fillbuf(FILE *);
+int     __cdecl _flushbu(int, FILE *);
+/*#define _filbuf _fillbuf*/
+/*#define _flsbuf _flushbu*/
+
+int __cdecl getw(FILE *FHdl);
+#define _getw  getw
+int __cdecl putw(int Word, FILE *FilePtr);
+#define _putw putw
+
+#if __cplusplus
+#else
+#define getchar()	getc(stdin)
+#define putchar(c)      putc(c,stdout)
+
+#if !defined(_WINDOWS)
+int __cdecl putch(int);
+#define _putch          putch
+#endif
+
+#define getc(fp)	fgetc(fp)
+#define putc(c,fp)	fputc((c),(fp))
+#define ferror(fp)	((fp)->_flag&_IOERR)
+#define feof(fp)	((fp)->_flag&_IOEOF)
+#define clearerr(fp)	((void)((fp)->_flag&=~(_IOERR|_IOEOF)))
+#define rewind(fp)	((void)(fseek(fp,0L,SEEK_SET),((fp)->_flag&=~_IOERR)))
+#endif
+
+#ifndef __STDC__
+#define fileno(fp)	((fp)->_file)
+#define _fileno(fp)     ((fp)->_file)
+
+#if M_UNIX || M_XENIX
+#endif 
+
+int     __cdecl unlink(const char *);
+#define _unlink unlink
+
+FILE *	__cdecl fdopen(int, const char *);
+int   __cdecl fgetchar(void);
+int   __cdecl fputchar(int);
+int	__cdecl fcloseall(void);
+long	__cdecl filesize(const char *);
+int	__cdecl flushall(void);
+int	__cdecl getch(void);
+int	__cdecl getche(void);
+int     __cdecl kbhit(void);
+char *  __cdecl tempnam (char *dir, char *pfx);
+int     __cdecl _snprintf(char *,size_t,const char *,...);
+int	__cdecl _vsnprintf(char *,size_t,const char *,va_list);
+#define _flushall flushall
+#define _fcloseall fcloseall
+#define _fdopen fdopen
+#define _tempnam tempnam
+#define _getche getche
+#define _getch getch
+#endif
+
+#ifdef __NT__
+#ifndef __STDC__
+wchar_t * __cdecl _wtmpnam(wchar_t *);
+FILE * __cdecl _wfopen(const wchar_t *, const wchar_t *);
+FILE * __cdecl _wfsopen(const wchar_t *, const wchar_t *, int);
+FILE * __cdecl _wfreopen(const wchar_t *, const wchar_t *, FILE *);
+wchar_t * __cdecl fgetws(wchar_t *, int, FILE *);
+int __cdecl fputws(const wchar_t *, FILE *);
+wchar_t * __cdecl _getws(wchar_t *);
+int __cdecl _putws(const wchar_t *);
+int __cdecl wprintf(const wchar_t * restrict format, ...);
+int __cdecl fwprintf(FILE * restrict stream, const wchar_t * restrict format, ...);
+int __cdecl vwprintf(const wchar_t * restrict format, va_list arg);
+int __cdecl vfwprintf(FILE * restrict stream, const wchar_t * restrict format, va_list arg);
+int __cdecl swprintf(wchar_t * restrict s, size_t n, const wchar_t * restrict format, ...);
+int __cdecl _swprintf(wchar_t * restrict s, const wchar_t * restrict format, ...);
+int __cdecl _snwprintf(wchar_t *, size_t, const wchar_t *, ...);
+int __cdecl vswprintf(wchar_t * restrict s, size_t n, const wchar_t * restrict format, va_list arg);
+int __cdecl _vswprintf(wchar_t * restrict s, const wchar_t * restrict format, va_list arg);
+int __cdecl _vsnwprintf(wchar_t *, size_t, const wchar_t *, va_list);
+int __cdecl wscanf(const wchar_t * restrict format, ...);
+int __cdecl fwscanf(FILE * restrict stream, const wchar_t * restrict format, ...);
+int __cdecl swscanf(const wchar_t * restrict s, const wchar_t * restrict format, ...);
+int __cdecl _wremove(const wchar_t *);
+void __cdecl _wperror(const wchar_t *);
+FILE * __cdecl _wfdopen(int, const wchar_t *);
+wchar_t * __cdecl _wtempnam(wchar_t *, wchar_t *);
+#if M_UNIX || M_XENIX
+#endif 
+wint_t __cdecl fgetwc(FILE *);
+wint_t __cdecl _fgetwchar(void);
+wint_t __cdecl fputwc(wint_t, FILE *);
+wint_t __cdecl _fputwchar(wint_t);
+wint_t __cdecl getwc(FILE *);
+wint_t __cdecl getwchar(void);
+wint_t __cdecl putwc(wint_t, FILE *);
+wint_t __cdecl putwchar(wint_t);
+wint_t __cdecl ungetwc(wint_t, FILE *);
+#define getwchar()	fgetwc(stdin)
+#define putwchar(_c)	fputwc((_c),stdout)
+#define getwc(_stm)	fgetwc(_stm)
+#define putwc(_c,_stm)	fputwc(_c,_stm)
+#endif
+#endif
+
+#if __cplusplus
+#endif 
+
+#endif
+
+/*
+** mpc - Micro Parser Combinator library for C
+**
+** https://github.com/orangeduck/mpc
+**
+** Daniel Holden - contact@daniel-holden.com
+** Licensed under BSD3
+*/
+
+#ifndef mpc_h
+#define mpc_h
+
+#ifdef __cplusplus
+#endif 
+
+/* Copyright (C) 1986-2001 by Digital Mars. $Revision: 1.1.1.3 $ */
+#if 0x857 || __RCC__
+#pragma once
+#endif
+
+#ifndef __STDLIB_H
+#define __STDLIB_H 1
+
+#if __cplusplus
+#endif 
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#endif 
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#endif 
+
+/* Define CRTIMP */
+#ifndef _CRTIMP
+#endif 
+
+#if __OS2__ && 4 == 4
+#else
+#define __CLIB __cdecl
+#endif
+
+#define EXIT_SUCCESS   0
+#define EXIT_FAILURE   1
+
+#ifndef NULL
+#endif 
+
+#if _M_AMD64
+#else
+typedef unsigned size_t;
+#endif
+
+//#ifndef __STDC__
+#if !defined(_WCHAR_T_DEFINED)
+#endif 
+//#endif
+
+#pragma pack(8)
+typedef struct _DIV { int  quot,rem; } div_t;
+typedef struct _LDIV { long quot,rem; } ldiv_t;
+#if 4 == 4
+typedef struct _LLDIV { long long quot,rem; } lldiv_t;
+#endif
+#pragma pack()
+
+#if !__STDC__
+
+#if !defined(ERANGE)
+#define ERANGE 34
+#endif
+
+#define HUGE_VAL       __inf
+
+#define RAND_MAX       32767
+
+#define _div_t _DIV
+#define _ldiv_t _LDIV
+
+#ifdef __NT__
+extern int __cdecl	__locale_mbsize;
+#define MB_CUR_MAX	__locale_mbsize
+#else
+#endif 
+
+#endif
+
+#define _MAX_PATH   260
+#define _MAX_DRIVE  3
+#define _MAX_DIR    256
+#define _MAX_FNAME  256
+#define _MAX_EXT    256
+
+#if defined(_MT) || __cplusplus
+#else
+
+#if !__STDC__
+extern int __cdecl errno;
+#endif
+extern int __cdecl _doserrno;
+
+#endif
+
+double __cdecl atof(const char *);
+#define _atold atof
+int    __cdecl atoi(const char *);
+long   __cdecl atol(const char *);
+double __cdecl strtod(const char *,char **);
+long double __cdecl strtold(const char *,char **);
+long   __cdecl strtol(const char *,char **,int);
+unsigned long  __cdecl strtoul(const char *,char **,int);
+#if 4 == 4
+long long   __cdecl atoll(const char *);
+long long   __cdecl strtoll(const char *,char **,int);
+unsigned long long __cdecl strtoull(const char *,char **,int);
+#endif
+int    __cdecl rand(void);
+void   __cdecl srand(unsigned);
+int    __cdecl random(int num);
+void    __cdecl randomize(void);
+ void * __cdecl calloc(size_t,size_t);
+ void   __cdecl free(void *);
+ void * __cdecl malloc(size_t);
+ void * __cdecl realloc(void *,size_t);
+void   __cdecl abort(void);
+int    __cdecl atexit(void (*)(void));
+void   __cdecl exit(int);
+void   __cdecl _Exit(int);
+void   __cdecl _exit(int);
+
+#pragma noreturn (abort)
+#pragma noreturn (_exit)
+#pragma noreturn (_Exit)
+
+ char * __cdecl getenv(const char *);
+int    __cdecl system(const char *);
+void * __cdecl bsearch(const void *,const void *,size_t,size_t,
+       int (__cdecl *)(const void *,const void *));
+void   __cdecl qsort(void *,size_t,size_t,
+       int (__cdecl *)(const void *,const void *));
+int    __cdecl abs(int);
+long   __cdecl labs(long);
+div_t  __cdecl div(int,int);
+ldiv_t __cdecl ldiv(long,long);
+#if 4 == 4
+long long   __cdecl llabs(long long);
+lldiv_t __cdecl lldiv(long long, long long);
+#endif
+int    __cdecl mblen(const char *, size_t);
+size_t __cdecl _mbstrlen(const char *);
+int    __cdecl mbtowc(wchar_t *, const char *, size_t);
+int    __cdecl wctomb(char *, wchar_t);
+size_t __cdecl mbstowcs(wchar_t *, const char *, size_t);
+size_t __cdecl wcstombs(char *, const wchar_t *, size_t);
+void   __cdecl perror(const char *);
+#ifndef toupper
+int    __cdecl toupper(int);
+#endif
+#ifndef tolower
+int    __cdecl tolower(int);
+#endif
+
+unsigned       __cdecl _rotl(unsigned,int);
+unsigned       __cdecl _rotr(unsigned,int);
+unsigned long  __cdecl _lrotl(unsigned long,int);
+unsigned long  __cdecl _lrotr(unsigned long,int);
+char * __cdecl _fullpath(char *buf,const char *path,size_t buflen);
+
+#if !__STDC__
+#define fullpath       _fullpath
+#endif
+
+extern int __cdecl sys_nerr;
+extern char * __cdecl sys_errlist[];
+#define _sys_nerr sys_nerr
+#define _sys_errlist sys_errlist
+
+#ifndef __STDC__
+
+#if 4 == 2
+#else
+int    __cdecl _fmblen(const char __far *,size_t);
+int    __cdecl _fmbtowc(wchar_t __far *,const char __far *,size_t);
+int    __cdecl _fwctomb(char __far *,wchar_t);
+size_t __cdecl _fmbstowcs(wchar_t __far *, const char __far *, size_t);
+size_t __cdecl _fwcstombs(char __far *, const wchar_t __far *, size_t);
+unsigned long long __cdecl strtoull(const char *,char **,int);
+#endif
+
+#if 4 == 2
+#else
+extern char *__cdecl _pgmptr;
+extern wchar_t *__cdecl _wpgmptr;
+#endif
+
+extern unsigned int __cdecl _osver;
+#ifndef __NT__
+#endif 
+
+#ifdef _DLL
+#else
+extern int __cdecl __argc;
+extern char __cdecl ** __argv;
+extern wchar_t __cdecl ** __wargv;
+#endif
+
+#if defined (_WIN32)
+wchar_t ** __cdecl __wparsecmdline(const wchar_t *, int *);
+char ** __cdecl __parsecmdline(const char *, int *);
+#endif
+
+#if defined(_WINDOWS) || defined(__NT__)
+extern unsigned char __cdecl _winmajor;
+extern unsigned char __cdecl _winminor;
+extern unsigned int __cdecl _winver;
+#endif
+
+#define _DOS_MODE 0
+#define _OS2_MODE 1
+#define _WIN_MODE 2
+
+#if !__STDC__
+#define DOS_MODE _DOS_MODE
+#define OS2_MODE _OS2_MODE
+#define WIN_MODE _WIN_MODE
+#endif
+
+extern unsigned char __cdecl _osmode;
+
+#define _REAL_MODE 0
+#define _PROT_MODE 1
+
+extern unsigned char __cdecl _cpumode;
+
+extern int __cdecl _fmode;
+
+void __cdecl _splitpath(const char *, char *,char *, char *, char *);
+void __cdecl _makepath(char *, const char *,const char *, const char *, const char *);
+void __cdecl _searchenv(const char *filename, const char *varname, char *pathname);
+
+#define	_HEAPEMPTY	-1
+#define	_HEAPOK		-2
+#define	_HEAPBADBEGIN	-3
+#define	_HEAPBADNODE	-4
+#define	_HEAPEND	-5
+#define	_HEAPBADPTR	-6
+
+
+ int __cdecl _heapchk(void);
+ int __cdecl _heapset(unsigned);
+#if 4 == 2
+#else
+int __cdecl _heapadd(void *,size_t);
+#endif
+int __cdecl _heapmin(void);
+
+#ifdef __NT__
+#define _expand realloc
+#else
+#endif 
+
+ size_t __cdecl _msize(void *);
+
+#if __LARGE__ || __COMPACT__
+#else
+void * __cdecl _nmalloc(size_t);
+void * __cdecl _ncalloc(size_t,size_t);
+void * __cdecl _nrealloc(void *,size_t);
+void __cdecl _nfree(void *);
+size_t __cdecl _nmsize(void *);
+size_t __cdecl _memmax(void);
+size_t __cdecl _memavl(void);
+unsigned int __cdecl _freect(size_t);
+unsigned __cdecl coreleft(void);
+unsigned long __cdecl farcoreleft(void);
+#if 4 == 2 || (!1 && !__OS2__)
+#endif 
+#endif
+
+#if 4 == 2
+#endif 
+
+char * __cdecl itoa(int,char *,int);
+char * __cdecl _itoa(int, char *,int);
+char * __cdecl ltoa(long, char *, int);
+char * __cdecl _ltoa(long, char *,int);
+char *  __cdecl ultoa(unsigned long, char *, int);
+char * __cdecl ecvt(double,int,int *,int *);
+char * __cdecl fcvt(double,int,int *,int *);
+char * __cdecl _fcvt(double,int,int *,int *);
+char * __cdecl gcvt(double,int,char *);
+void * __cdecl sbrk(size_t);
+void   __cdecl swab(char *,char *,size_t);
+float  __cdecl strtof(const char *,char **);
+#define _swab swab
+#define _ecvt ecvt
+#define _gcvt gcvt
+#if !1
+#endif 
+#define _strtold       strtold
+#define _ultoa ultoa
+#if _MSDOS
+#else
+void *    __cdecl alloca(size_t);
+#endif
+#define _alloca alloca
+size_t __cdecl stackavail(void);
+size_t __cdecl _chkstack(void);
+#define _stackavail stackavail
+
+#if 4 == 4
+int __cdecl _fatexit (void (__cdecl *func)(void));
+typedef void (__cdecl * _fonexit_t)(void);
+_fonexit_t __cdecl _fonexit (_fonexit_t func);
+#else
+#endif 
+
+typedef void (__cdecl * _onexit_t)(void);
+_onexit_t __cdecl _onexit (_onexit_t func);
+
+#ifndef __STDC__
+#define onexit _onexit
+#endif
+
+#if 4 == 2
+#endif 
+ int            __cdecl putenv(const char *);
+
+#define _putenv putenv
+
+/* Min and Max macros useful in both C and CPP */
+#define __max(a,b)            (((a) > (b)) ? (a) : (b))
+#define __min(a,b)            (((a) < (b)) ? (a) : (b))
+
+
+#ifndef __cplusplus
+
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+#endif
+
+extern int (__far __cdecl *_malloc_handler)(void);
+extern char * __cdecl _envptr;
+#ifdef _DLL
+#else
+extern char ** __cdecl _environ;
+#endif
+
+#define environ _environ
+
+#ifdef __NT__
+#define _aenvptr _envptr
+extern wchar_t * __cdecl _wenvptr;
+#ifdef _DLL
+#else
+extern wchar_t ** __cdecl _wenviron;
+#endif
+
+#define wenviron _wenviron
+#endif
+
+#if !(defined (_WINDOWS) || defined (__NT__) || defined (DOS386))
+#endif 
+
+#if M_UNIX || M_XENIX
+#endif 
+
+#endif
+
+#ifdef __NT__
+#ifndef __STDC__
+int __cdecl _wtoi(const wchar_t *);
+long __cdecl _wtol(const wchar_t *);
+//double __CLIB wcstod(const wchar_t *, wchar_t **);
+//long double __CLIB wcstold(const wchar_t *, wchar_t **);
+//long __CLIB wcstol(const wchar_t *, wchar_t **, int);
+//unsigned long __CLIB wcstoul(const wchar_t *, wchar_t **, int);
+//long long __CLIB wcstoll(const wchar_t *, wchar_t **, int);
+//unsigned long long __CLIB wcstoull(const wchar_t *, wchar_t **, int);
+ wchar_t * __cdecl _wgetenv(const wchar_t *);
+int __cdecl _wsystem(const wchar_t *);
+wchar_t * __cdecl _itow(int, wchar_t *, int);
+wchar_t * __cdecl _ltow(long, wchar_t *, int);
+wchar_t * __cdecl _ultow(unsigned long, wchar_t *, int);
+wchar_t * __cdecl _wfullpath(wchar_t *, const wchar_t *, size_t);
+void __cdecl _wmakepath(wchar_t *, const wchar_t *, const wchar_t *, const wchar_t *, const wchar_t *);
+void __cdecl _wperror(const wchar_t *);
+ int __cdecl _wputenv(const wchar_t *);
+void __cdecl _wsearchenv(const wchar_t *, const wchar_t *, wchar_t *);
+void __cdecl _wsplitpath(const wchar_t *, wchar_t *, wchar_t *, wchar_t *, wchar_t *);
+#define itow _itow
+#define ltow _ltow
+#define ultow _ultow
+#endif
+#endif
+
+#if __cplusplus
+#endif 
+
+#endif
+
+
+/* Copyright (C) 1986-2005 by Digital Mars */
+/* www.digitalmars.com */
+
+#if 0x857 || __RCC__
+#pragma once
+#endif
+
+#ifndef __STDARG_H
+#define __STDARG_H 1
+
+#if 4 == 4
+#define __VA_ALIGN	3
+#else
+#endif 
+
+#define __va_size(type) ((sizeof(type) + __VA_ALIGN) & ~__VA_ALIGN)
+#define _INTSIZEOF(n)    ( (sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1) )
+
+#if 1
+#define __SS
+#define _FARARG_
+#else
+#endif 
+
+typedef char  *va_list;
+
+#if __cplusplus
+#else
+    #define va_start(ap,parmn) ((void)((ap) = (va_list)&(parmn)+__va_size(parmn)))
+    #define va_end(ap)  ((void)0)
+#endif
+
+#define va_arg(ap,type)	   (*(type __SS *)(((ap)+=__va_size(type))-(__va_size(type))))
+#define va_copy(dest,src)  ((dest) = (src))
+
+#endif
+
+
+// Copyright (C) 1986-2001 by Digital Mars.
+// www.digitalmars.com
+
+#if 0x857 || __RCC__
+#pragma once
+#endif
+
+#ifndef __STRING_H
+#define __STRING_H 1
+
+#if __cplusplus
+#endif 
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#endif 
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#endif 
+
+/* Define CRTIMP */
+#ifndef _CRTIMP
+#endif 
+
+#if _M_AMD64
+#else
+typedef unsigned size_t;
+#endif
+
+#ifndef __STDC__
+#if !defined(_WCHAR_T_DEFINED)
+#endif 
+#endif
+
+#define _NLSCMPERROR	2147483647
+
+#ifndef NULL
+#endif 
+
+#if __cplusplus
+#else
+#define __RESTRICT restrict
+#endif
+
+#if __OS2__ && 4 == 4
+#else
+#define __CLIB	__cdecl
+#endif
+
+void *	__cdecl memcpy(void *,const void *,size_t);
+void *  __cdecl _inline_memcpy(void *,const void *,size_t);
+void *	__cdecl memmove(void *,const void *,size_t);
+char *	__cdecl strcpy(char *,const char *);
+char *	__cdecl _inline_strcpy(char *,const char *);
+char *	__cdecl strncpy(char *,const char *,size_t);
+char *	__cdecl strcat(char *,const char *);
+char *	__cdecl strncat(char *,const char *,size_t);
+int	__cdecl memcmp(const void *,const void *,size_t);
+int     __cdecl _inline_memcmp(const void *,const void *,size_t);
+int	__cdecl strcmp(const char *,const char *);
+int	__cdecl _inline_strcmp(const char *,const char *);
+int	__cdecl strcoll(const char *,const char *);
+int	__cdecl strncmp(const char *,const char *,size_t);
+size_t	__cdecl strxfrm(char *,const char *,size_t);
+size_t	__cdecl strcspn(const char *,const char *);
+size_t	__cdecl strspn(const char *,const char *);
+char *	__cdecl strtok(char *,const char *);
+void *	__cdecl memset(void *,int,size_t);
+char *	__cdecl strerror(int);
+size_t	__cdecl strlen(const char *);
+size_t	__cdecl _inline_strlen(const char *);
+
+#ifndef __STDC__
+/* Unicode string routines, these are in wchar.h as well */
+size_t __cdecl wcslen(const wchar_t *);
+ wchar_t * __cdecl wcscpy(wchar_t *, const wchar_t *);
+#ifdef __NT__
+wchar_t * __cdecl wmemcpy(wchar_t *,const wchar_t *,size_t);
+wchar_t * __cdecl wmemmove(wchar_t *,const wchar_t *,size_t);
+wchar_t * __cdecl wmemset(wchar_t *,wchar_t,size_t);
+wchar_t * __cdecl wcsncpy(wchar_t *, const wchar_t *, size_t);
+wchar_t * __cdecl wcscat(wchar_t *, const wchar_t *);
+wchar_t * __cdecl wcsncat(wchar_t *, const wchar_t *, size_t);
+int __cdecl wcscmp(const wchar_t *, const wchar_t *);
+int __cdecl wcsncmp(const wchar_t *, const wchar_t *, size_t);
+int __cdecl wcscoll(const wchar_t *, const wchar_t *);
+size_t __cdecl wcsxfrm(wchar_t *, const wchar_t *, size_t);
+size_t __cdecl wcscspn(const wchar_t *, const wchar_t *);
+size_t __cdecl wcsspn(const wchar_t *, const wchar_t *);
+wchar_t * __cdecl wcstok(wchar_t * restrict s1, const wchar_t * restrict s2, wchar_t ** restrict ptr);
+int __cdecl _wcsicoll(const wchar_t *, const wchar_t *);
+int __cdecl _wcsncoll(const wchar_t *, const wchar_t *, size_t);
+int __cdecl _wcsnicoll(const wchar_t *, const wchar_t *, size_t);
+int __cdecl _wcsicmp(const wchar_t *, const wchar_t *);
+ int __cdecl _wcsnicmp(const wchar_t *, const wchar_t *, size_t);
+ wchar_t * __cdecl _wcsdup(const wchar_t *);
+wchar_t * __cdecl _wcslwr(wchar_t *);
+wchar_t * __cdecl _wcsupr(wchar_t *);
+wchar_t * __cdecl _wcsnset(wchar_t *, wchar_t, size_t);
+wchar_t * __cdecl _wcsrev(wchar_t *);
+wchar_t * __cdecl _wcsset(wchar_t *, wchar_t);
+#define wcswcs	wcsstr
+#define wcsdup	_wcsdup
+#define wcsicmp	_wcsicmp
+#define wcsnicmp _wcsnicmp
+#define wcsnset	_wcsnset
+#define wcsrev	_wcsrev
+#define wcsset	_wcsset
+#define wcslwr	_wcslwr
+#define wcsupr	_wcsupr
+#define wcsicoll _wcsicoll
+#endif
+#endif
+
+int  *	__cdecl _memintset(int *, int, size_t);
+int	__cdecl memicmp(const void *,const void *,size_t);
+void *  __cdecl memccpy(void *,const void *,int,unsigned int);
+char *	__cdecl stpcpy(char *,const char *);
+int	__cdecl stricmp(const char *,const char *);
+int	__cdecl strcmpl(const char *,const char *); /* obsolete */
+int	__cdecl strnicmp(const char *, const char *, size_t);
+char *	__cdecl strdup(const char *);
+char *	__cdecl strlwr(char *);
+char *	__cdecl strupr(char *);
+char *	__cdecl strnset(char *,int,size_t);
+char *	__cdecl strrev(char *);
+char *	__cdecl strset(char *,int);
+void	__cdecl swab(char *,char *,size_t);
+void	__cdecl movedata(unsigned short srcseg,unsigned srcoff,unsigned short destseg,unsigned destoff,size_t nbytes);
+char *	__cdecl _strerror(const char *);
+int	__cdecl _stricoll(const char *, const char *);
+int	__cdecl _strncoll(const char *, const char *, size_t);
+int	__cdecl _strnicoll(const char *, const char *, size_t);
+
+#if 4 == 2
+#endif 
+
+#ifndef __NT__
+#endif 
+
+#define strncmpl        strnicmp
+
+#if !__STDC__
+#define _stricmp stricmp
+#define strcmpi stricmp
+#define _strcmpi stricmp
+#define movmem(src,dest,len) ((void)memmove(dest,src,len))
+#define setmem(dest,len,chr) ((void)memset(dest,chr,len))
+#define strncmpi strnicmp
+#define _strnicmp strnicmp
+#define _movedata movedata
+int	__cdecl _memicmp(const void *,const void *,size_t);
+#define _memccpy memccpy
+char *	__cdecl _strdup(const char *);
+#define _strlwr strlwr
+#define _strnset strnset
+char *	__cdecl _strrev(char *);
+#define _strset strset
+#define _strupr strupr
+#define _swab swab
+
+#if 4 == 2
+#endif 
+#endif
+
+#if !__STDC__
+extern int __cdecl sys_nerr;
+extern char * __cdecl sys_errlist[];
+#endif
+
+#if __cplusplus
+#endif 
+
+#if 199901L >= 199901L
+
+char *	__cdecl strchr(const char *,int);
+char *	__cdecl strrchr(const char *,int);
+char *	__cdecl strpbrk(const char *,const char *);
+char *	__cdecl strstr(const char *,const char *);
+void *	__cdecl memchr(const void *,int,size_t);
+
+#ifndef __STDC__
+ wchar_t * __cdecl wcschr(const wchar_t *, wchar_t);
+wchar_t * __cdecl wcsrchr(const wchar_t *, wchar_t);
+wchar_t * __cdecl wcspbrk(const wchar_t *, const wchar_t *);
+wchar_t * __cdecl wcsstr(const wchar_t *, const wchar_t *);
+wchar_t * __cdecl wmemchr(const wchar_t *,wchar_t,size_t);
+#endif
+
+#elif __cplusplus
+#endif 
+
+#endif
+
+
+/* Copyright (C) 1986-2003 by Digital Mars.
+ * All Rights Reserved
+ * www.digitalmars.com
+ */
+
+#if 0x857 || __RCC__
+#pragma once
+#endif
+
+#ifndef __MATH_H
+#define __MATH_H 1
+
+#if __cplusplus
+#endif 
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#endif 
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#endif 
+
+/* Define CRTIMP */
+#ifndef _CRTIMP
+#endif 
+
+typedef long double float_t;
+typedef long double double_t;
+
+#define HUGE_VAL	__inf
+#define HUGE_VALF	((float)__inf)
+#define HUGE_VALL	((long double)__inf)
+
+#define INFINITY	__inf
+#define	NAN		__nan
+
+#ifndef __STDC__
+#define NANS		__nans
+#endif
+
+#define	FP_NANS		0
+#define FP_NANQ		1
+#define	FP_INFINITE	2
+#define	FP_NORMAL	3
+#define	FP_SUBNORMAL	4
+#define	FP_ZERO		5
+
+#define FP_NAN		FP_NANQ
+#define FP_EMPTY	6
+#define FP_UNSUPPORTED	7
+
+#if 4 == 2
+#else
+#define FP_ILOGB0	(-2147483647L - 1)
+#define FP_ILOGBNAN	(-2147483647L - 1)
+#endif
+
+#define MATH_ERRNO	1
+#define MATH_ERREXCEPT	2
+#define math_errhandling (MATH_ERRNO | MATH_ERREXCEPT)
+
+unsigned __cdecl __fpclassify_f(float);
+unsigned __cdecl __fpclassify_d(double);
+unsigned __cdecl __fpclassify_ld(long double);
+
+unsigned __cdecl __fpxam_ld(long double);
+
+#if __cplusplus
+#else
+#define fpclassify(fe)	(sizeof(fe) == sizeof(float) ?						    __fpclassify_f(fe) :						    (sizeof(fe) == sizeof(double) ? __fpclassify_d(fe) : __fpclassify_ld(fe)) 			)
+#if 1
+#define signbit __signbit
+__inline int __signbit(long double fe)
+	{ return (sizeof(long double) == sizeof(double))
+		? ((short *)&(fe))[3] & 0x8000
+		: ((short *)&(fe))[4] & 0x8000;
+	}
+#else
+#endif 
+#define isfinite(fe)	(fpclassify(fe) >= FP_NORMAL)
+#define isnormal(fe)	(fpclassify(fe) == FP_NORMAL)
+#define isnan(fe)	(fpclassify(fe) <= FP_NANQ)
+#define isinf(fe)	(fpclassify(fe) == FP_INFINITE)
+#endif
+
+
+#if __OS2__ && 4 == 4
+#else
+#define __CLIB	__cdecl
+#endif
+
+double	__cdecl acos(double);
+float	__cdecl acosf(float);
+long double __cdecl acosl(long double);
+
+double	__cdecl asin(double);
+float	__cdecl asinf(float);
+long double __cdecl asinl(long double);
+
+double	__cdecl atan(double);
+float	__cdecl atanf(float);
+long double __cdecl atanl(long double);
+
+double	__cdecl atan2(double,double);
+float	__cdecl atan2f(float,float);
+long double __cdecl atan2l(long double, long double);
+
+float		__cdecl cosf(float);
+#if !(1 && 6 >= 3)
+#endif 
+long double	__cdecl cosl(long double);
+float		__cdecl _inline_cosf(float);
+double		__cdecl _inline_cos(double);
+long double	__cdecl _inline_cosl(long double);
+#if 1 && 6 >= 3
+#if __cplusplus
+#else
+#define cos(d)  _inline_cos(d)
+#endif
+#define cosf(f) _inline_cosf(f)
+#define cosl(d) _inline_cosl(d)
+#elif !_WIN32
+#endif 
+//#define _cosl	cosl
+
+float		__cdecl sinf(float);
+#if !(1 && 6 >= 3)
+#endif 
+long double	__cdecl sinl(long double);
+float		__cdecl _inline_sinf(float);
+double		__cdecl _inline_sin(double);
+long double	__cdecl _inline_sinl(long double);
+#if 1 && 6 >= 3
+#if __cplusplus
+#else
+#define sin(d)  _inline_sin(d)
+#endif
+#define sinf(f) _inline_sinf(f)
+#define sinl(d) _inline_sinl(d)
+#elif !_WIN32
+#endif 
+
+double	__cdecl tan(double);
+float	__cdecl tanf(float);
+long double __cdecl tanl(long double);
+
+double __cdecl acosh(double x);
+float __cdecl acoshf(float x);
+long double __cdecl acoshl(long double x);
+
+double __cdecl asinh(double x);
+float __cdecl asinhf(float x);
+long double __cdecl asinhl(long double x);
+
+double __cdecl atanh(double x);
+float __cdecl atanhf(float x);
+long double __cdecl atanhl(long double x);
+
+
+double	__cdecl cosh(double);
+float	__cdecl coshf(float);
+long double __cdecl coshl(long double);
+
+double	__cdecl sinh(double);
+float	__cdecl sinhf(float);
+long double __cdecl sinhl(long double);
+
+double	__cdecl tanh(double);
+float	__cdecl tanhf(float);
+long double __cdecl tanhl(long double);
+
+double	__cdecl exp(double);
+float	__cdecl expf(float);
+long double __cdecl expl(long double);
+
+double	__cdecl exp2(double);
+float	__cdecl exp2f(float);
+long double __cdecl exp2l(long double);
+
+double	__cdecl expm1(double);
+float	__cdecl expm1f(float);
+long double __cdecl expm1l(long double);
+
+double	__cdecl frexp(double,int *);
+float	__cdecl frexpf(float,int *);
+#if 1
+long double __cdecl frexpl(long double,int *);
+#else
+#endif 
+
+int __cdecl ilogb(double);
+int __cdecl ilogbf(float);
+int __cdecl ilogbl(long double);
+
+double	__cdecl ldexp(double,int);
+float	__cdecl ldexpf(float,int);
+double	__cdecl _inline_ldexp(double,int);
+float	__cdecl _inline_ldexpf(float,int);
+#if 1
+long double	__cdecl ldexpl(long double, int);
+long double	__cdecl _inline_ldexpl(long double, int);
+#else
+#endif 
+#if 1 && 6 >= 3
+#define ldexp(d,i)  _inline_ldexp(d,i)
+#define ldexpf(f,i) _inline_ldexpf(f,i)
+#define ldexpl(d,i) _inline_ldexpl(d,i)
+#endif
+
+#if 1
+long double __cdecl _inline_yl2x(long double x, long double y);
+long double __cdecl _inline_yl2xp1(long double x, long double y);
+#endif
+
+double	__cdecl log(double);
+float	__cdecl logf(float);
+long double __cdecl logl(long double);
+
+double	__cdecl log10(double);
+float	__cdecl log10f(float);
+long double __cdecl log10l(long double);
+
+double	__cdecl log1p(double);
+float	__cdecl log1pf(float);
+#if 1
+long double	__cdecl log1pl(long double);
+#else
+#endif 
+
+double	__cdecl log2(double);
+float	__cdecl log2f(float);
+long double __cdecl log2l(long double);
+
+double	__cdecl logb(double);
+float	__cdecl logbf(float);
+#if 1
+long double __cdecl logbl(long double);
+#else
+#endif 
+
+double	__cdecl modf(double,double *);
+float	__cdecl modff(float,float *);
+long double __cdecl modfl(long double, long double *);
+
+double	__cdecl scalbn(double, int);
+float	__cdecl scalbnf(float, int);
+long double __cdecl scalbnl(long double, int);
+
+double	__cdecl scalbln(double, long);
+float	__cdecl scalblnf(float, long);
+long double __cdecl scalblnl(long double, long);
+
+double	__cdecl cbrt(double);
+float	__cdecl cbrtf(float);
+long double __cdecl cbrtl(long double);
+
+float		__cdecl fabsf(float);
+long double	__cdecl fabsl(long double);
+float		__cdecl _inline_fabsf(float);
+double		__cdecl _inline_fabs(double);
+long double	__cdecl _inline_fabsl(long double);
+#if __cplusplus
+#else
+double		__cdecl fabs(double);
+#define fabs(d)  _inline_fabs(d)
+#endif
+#define fabsf(f) _inline_fabsf(f)
+#define fabsl(d) _inline_fabsl(d)
+
+float	__cdecl hypotf(float, float);
+double	__cdecl hypot(double,double);
+long double __cdecl hypotl(long double, long double);
+
+double	__cdecl pow(double,double);
+float	__cdecl powf(float,float);
+long double __cdecl powl(long double, long double);
+
+float		__cdecl sqrtf(float);
+#if !1 && !__cplusplus
+#endif 
+long double	__cdecl sqrtl(long double);
+float		__cdecl _inline_sqrtf(float);
+double		__cdecl _inline_sqrt(double);
+long double	__cdecl _inline_sqrtl(long double);
+#if 1
+#if __cplusplus
+#else
+#define sqrt(d)  _inline_sqrt(d)
+#endif
+#define sqrtf(f) _inline_sqrtf(f)
+#define sqrtl(d) _inline_sqrtl(d)
+#elif !_WIN32
+#endif 
+
+
+double __cdecl erf(double x);
+float __cdecl erff(float x);
+long double __cdecl erfl(long double x);
+
+double __cdecl erfc(double x);
+float __cdecl erfcf(float x);
+long double __cdecl erfcl(long double x);
+
+double __cdecl lgamma(double x);
+float __cdecl lgammaf(float x);
+long double __cdecl lgammal(long double x);
+
+double __cdecl tgamma(double x);
+float __cdecl tgammaf(float x);
+long double __cdecl tgammal(long double x);
+
+float		__cdecl ceilf(float);
+double		__cdecl ceil(double);
+long double	__cdecl ceill(long double);
+
+float		__cdecl floorf(float);
+double		__cdecl floor(double);
+long double	__cdecl floorl(long double);
+
+double __cdecl nearbyint(double);
+float __cdecl nearbyintf(float);
+long double __cdecl nearbyintl(long double);
+#if !1
+#endif 
+
+float		__cdecl rintf(float);
+double		__cdecl rint(double);
+long double	__cdecl rintl(long double);
+float		__cdecl _inline_rintf(float);
+double		__cdecl _inline_rint(double);
+long double	__cdecl _inline_rintl(long double);
+#if 1
+#define rint(d)  _inline_rint(d)
+#define rintf(f) _inline_rintf(f)
+#define rintl(d) _inline_rintl(d)
+#elif !_WIN32
+#endif 
+
+long int __cdecl lrint(double x);
+long int __cdecl lrintf(float x);
+long int __cdecl lrintl(long double x);
+
+#if 1
+long long int __cdecl llrint(double x);
+long long int __cdecl llrintf(float x);
+long long int __cdecl llrintl(long double x);
+#endif
+
+double __cdecl round(double );
+float __cdecl roundf(float );
+long double __cdecl roundl(long double );
+#if !1
+#endif 
+
+long int __cdecl lround(double x);
+long int __cdecl lroundf(float x);
+long int __cdecl lroundl(long double x);
+
+#if 1
+long long int __cdecl llround(double x);
+long long int __cdecl llroundf(float x);
+long long int __cdecl llroundl(long double x);
+#endif
+
+double __cdecl trunc(double);
+float __cdecl truncf(float);
+long double __cdecl truncl(long double);
+#if !1
+#endif 
+
+double	__cdecl fmod(double,double);
+float	__cdecl fmodf(float,float);
+long double __cdecl fmodl(long double, long double);
+
+double __cdecl remainder(double, double);
+float __cdecl remainderf(float, float);
+long double __cdecl remainderl(long double, long double);
+
+double __cdecl remquo(double, double, int *);
+float __cdecl remquof(float, float, int *);
+long double __cdecl remquol(long double, long double, int *);
+#define remquol		remquo
+
+double		__cdecl copysign(double, double);
+float		__cdecl copysignf(float, float);
+long double	__cdecl copysignl(long double, long double);
+#if !1
+#endif 
+
+double __cdecl nan(const char *);
+float __cdecl nanf(const char *);
+long double __cdecl nanl(const char *);
+#if !1
+#endif 
+
+double __cdecl nextafter(double, double);
+float __cdecl nextafterf(float, float);
+long double __cdecl nextafterl(long double, long double);
+#define nextafterl	(long double)nextafter
+
+double __cdecl nexttoward(double, double);
+float __cdecl nexttowardf(float, float);
+long double __cdecl nexttowardl(long double, long double);
+
+double __cdecl fdim(double, double);
+float __cdecl fdimf(float, float);
+long double __cdecl fdiml(long double, long double);
+
+double __cdecl fmax(double, double);
+float __cdecl fmaxf(float, float);
+long double __cdecl fmaxl(long double, long double);
+
+double __cdecl fmin(double, double);
+float __cdecl fminf(float, float);
+long double __cdecl fminl(long double, long double);
+
+double __cdecl fma(double, double, double);
+float __cdecl fmaf(float, float, float);
+long double __cdecl fmal(long double, long double, long double);
+
+
+#define isgreater(x,y)		!((x) !>  (y))
+#define isgreaterequal(x,y)	!((x) !>= (y))
+#define isless(x,y)		!((x) !<  (y))
+#define islessequal(x,y)	!((x) !<= (y))
+#define islessgreater(x,y)	!((x) !<> (y))
+#define isunordered(x,y)	((x) !<>= (y))
+
+#ifndef __STDC__
+
+#define _matherrl _matherr
+
+#if 0 // obsolete
+#endif 
+
+#define M_LOG2T		3.32192809488736234787
+#define M_LOG2		0.30102999566398119521
+#define	M_LOG2E		1.4426950408889634074
+#define	M_LN2		0.6931471805599453094172321
+#define	M_PI		3.14159265358979323846
+#define	M_E		2.7182818284590452354
+#define	M_LOG10E	0.43429448190325182765
+#define	M_LN10		2.30258509299404568402
+#define	M_PI_2		1.57079632679489661923
+#define	M_PI_4		0.78539816339744830962
+#define	M_1_PI		0.31830988618379067154
+#define	M_2_PI		0.63661977236758134308
+#define	M_2_SQRTPI	1.12837916709551257390
+#define	M_SQRT2		1.41421356237309504880
+#define	M_SQRT1_2	0.70710678118654752440
+
+// 80 bit
+#define	M_PI_L		0x1.921fb54442d1846ap+1L	// 3.14159 fldpi
+#define	M_LOG2T_L	0x1.a934f0979a3715fcp+1L	// 3.32193 fldl2t
+#define	M_LOG2E_L	0x1.71547652b82fe178p+0L	// 1.4427 fldl2e
+#define	M_LOG2_L	0x1.34413509f79fef32p-2L	// 0.30103 fldlg2
+#define	M_LN2_L		0x1.62e42fefa39ef358p-1L	// 0.693147 fldln2
+
+#ifndef _EXCEPTION_DEFINED
+
+struct _exception
+{	int type;
+	char *name;
+	double arg1;
+	double arg2;
+	double retval;
+};
+
+#if !__STDC__
+#define exception _exception
+#endif
+
+#define _exceptionl _exception
+
+#define _EXCEPTION_DEFINED
+#endif 
+
+
+#define _DOMAIN		1
+#define _SING		2
+#define	_OVERFLOW	3
+#define _UNDERFLOW	4
+#define _TLOSS		5
+#define _PLOSS		6
+
+#define EDOM            33
+#define ERANGE          34
+
+#ifndef __STDC__
+#define DOMAIN		_DOMAIN
+#define SING		_SING
+#define	OVERFLOW	_OVERFLOW
+#define UNDERFLOW	_UNDERFLOW
+#define TLOSS		_TLOSS
+#define PLOSS		_PLOSS
+#define DIVIDE_BY_ZERO  7
+#endif
+
+int	__cdecl matherr(struct _exception *);
+double	__cdecl atof(const char *);
+#define _atold atof
+#define _matherr matherr
+double	__cdecl poly(double,int,double []);
+#define polyl poly
+double _poly87(double, int, double []);
+
+#if 1
+#define poly _poly87
+#endif
+
+
+#endif
+
+#if __cplusplus
+#endif 
+
+#endif
+
+/* Copyright (C) 1986-2001 by Digital Mars. $Revision: 1.1.1.1 $ */
+#if 0x857 || __RCC__
+#pragma once
+#endif
+
+
+#ifndef __ERRNO_H
+#define __ERRNO_H 1
+
+#if __cplusplus
+#endif 
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#endif 
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#endif 
+
+/* Define CRTIMP */
+#ifndef _CRTIMP
+#endif 
+
+#if __OS2__ && 4 == 4
+#else
+#define __CLIB	__cdecl
+#endif
+
+#if defined(_MT) || defined(_DLL) || __cplusplus
+#else
+extern int __cdecl errno;
+#endif
+
+#if M_UNIX || M_XENIX
+#else
+
+#define EZERO        0
+#define EPERM        1
+#define ENOENT       2
+#define ESRCH        3
+#define EINTR        4
+#define EIO          5
+#define ENXIO        6
+#define E2BIG        7
+#define ENOEXEC      8
+#define EBADF        9
+#define ECHILD       10
+#define EAGAIN       11
+#define ENOMEM       12
+#define EACCES       13
+#define EFAULT       14
+#define ENOTBLK      15
+#define EBUSY        16
+#define EEXIST       17
+#define EXDEV        18
+#define ENODEV       19
+#define ENOTDIR      20
+#define EISDIR       21
+#define EINVAL       22
+#define ENFILE       23
+#define EMFILE       24
+#define ENOTTY       25
+#define ETXTBSY      26
+#define EFBIG        27
+#define ENOSPC       28
+#define ESPIPE       29
+#define EROFS        30
+#define EMLINK       31
+#define EPIPE        32
+#define EDOM         33
+#define ERANGE       34
+#define EUCLEAN      35
+#define EDEADLOCK    36
+#define EDEADLK      36
+#define ENAMETOOLONG 38
+#define ENOLCK       39
+#define ENOSYS       40
+#define ENOTEMPTY    41
+#define EILSEQ       42
+
+#endif /* M_UNIX || M_XENIX */
+
+#if __cplusplus
+#endif 
+
+#endif
+
+
+/* Copyright (C) 1986-2002 by Digital Mars.
+ * All Rights Reserved
+ * www.digitalmars.com
+ */
+
+#if 0x857 || __RCC__
+#pragma once
+#endif
+
+#ifndef __CTYPE_H
+#define __CTYPE_H 1
+
+#if __cplusplus
+#endif 
+
+#ifndef __STDC__
+
+#if !defined(_WCHAR_T_DEFINED)
+#endif 
+
+#if !defined(_WCTYPE_T_DEFINED)
+typedef wchar_t wint_t;
+typedef wchar_t wctype_t;
+#define _WCTYPE_T_DEFINED 1
+#endif
+
+#ifndef WEOF
+#endif 
+
+#endif
+
+#if __OS2__ && 4 == 4
+#else
+#define __CLIB	__cdecl
+#endif
+
+/* Define _CRTAPI1 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI1
+#endif 
+
+
+/* Define _CRTAPI2 (for compatibility with the NT SDK) */
+#ifndef _CRTAPI2
+#endif 
+
+/* Define CRTIMP  */
+#ifndef _CRTIMP
+#endif 
+
+#define _SPC	8
+#define _CTL	0x20
+#define _BLK	0x40
+#define _HEX	0x80
+#define _UC	1
+#define _LC	2
+#define _PNC	0x10
+#define _DIG	4
+#ifdef __NT__
+#define _ALP	(0x0100|_UC|_LC)
+#define _LEADBYTE 0x8000
+#else
+#endif 
+
+#define _UPPER _UC
+#define _LOWER _LC
+#define _DIGIT _DIG
+#define _SPACE _SPC
+#define _PUNCT _PNC
+#define _CONTROL _CTL
+#define _BLANK _BLK
+#define _ALPHA _ALP
+
+#ifdef __NT__
+#ifdef M_ELF
+#endif 
+
+extern unsigned short * __cdecl	_pctype;
+#ifndef __STDC__
+extern wctype_t * __cdecl	_pwctype;
+#endif
+extern unsigned short __cdecl	_ctype[];
+#else
+#endif 
+
+#ifdef __NT__
+int	__cdecl _isctype(int, int);
+#endif
+
+int	__cdecl isalnum(int);
+int	__cdecl isalpha(int);
+int	__cdecl isblank(int);
+int	__cdecl iscntrl(int);
+int	__cdecl isdigit(int);
+int	__cdecl isgraph(int);
+int	__cdecl islower(int);
+int	__cdecl isprint(int);
+int	__cdecl ispunct(int);
+int	__cdecl isspace(int);
+int	__cdecl isupper(int);
+int	__cdecl isxdigit(int);
+int	__cdecl toupper(int);
+int	__cdecl tolower(int);
+
+#ifndef __STDC__
+int	__cdecl isascii(int);
+int	__cdecl __isascii(int);
+int	__cdecl iscsym(int);
+int	__cdecl __iscsym(int);
+int	__cdecl iscsymf(int);
+int	__cdecl __iscsymf(int);
+int	__cdecl toascii(int);
+int	__cdecl __toascii(int);
+int 	__cdecl _toupper(int);
+int	__cdecl _tolower(int);
+#endif
+
+#ifdef __NT__
+#ifndef __STDC__
+#ifndef iswalpha
+int __cdecl iswalpha(wint_t);
+int __cdecl iswblank(wint_t);
+int __cdecl iswupper(wint_t);
+int __cdecl iswlower(wint_t);
+int __cdecl iswdigit(wint_t);
+int __cdecl iswxdigit(wint_t);
+int __cdecl iswspace(wint_t);
+int __cdecl iswpunct(wint_t);
+int __cdecl iswalnum(wint_t);
+int __cdecl iswprint(wint_t);
+int __cdecl iswgraph(wint_t);
+int __cdecl iswcntrl(wint_t);
+int __cdecl iswascii(wint_t);
+int __cdecl isleadbyte(int);
+wchar_t __cdecl towupper(wchar_t);
+ wchar_t __cdecl towlower(wchar_t);
+int __cdecl iswctype(wint_t, wctype_t);
+#define is_wctype	iswctype
+#endif
+#endif
+#endif
+
+#ifdef __NT__
+extern int __cdecl __locale_mbsize;
+#define MB_CUR_MAX	__locale_mbsize
+#define isalnum(c)	(MB_CUR_MAX>1?_isctype(c,_ALP|_DIG):_pctype[c]&(_ALP|_DIG))
+#define isalpha(c)	(MB_CUR_MAX>1?_isctype(c,_ALP):_pctype[c]&_ALP)
+#define iscntrl(c)	(MB_CUR_MAX>1?_isctype(c,_CTL):_pctype[c]&_CTL)
+#define isdigit(c)	(MB_CUR_MAX>1?_isctype(c,_DIG):_pctype[c]&_DIG)
+#define isgraph(c)	(MB_CUR_MAX>1?_isctype(c,_ALP|_DIG|_PNC):_pctype[c]&(_ALP|_DIG|_PNC))
+#define islower(c)	(MB_CUR_MAX>1?_isctype(c,_LC):_pctype[c]&_LC)
+#define isprint(c)	(MB_CUR_MAX>1?_isctype(c,_ALP|_DIG|_PNC|_BLK):_pctype[c]&(_ALP|_DIG|_PNC|_BLK))
+#define ispunct(c)	(MB_CUR_MAX>1?_isctype(c,_PNC):_pctype[c]&_PNC)
+#define isspace(c)	(MB_CUR_MAX>1?_isctype(c,_SPC):_pctype[c]&_SPC)
+#define isupper(c)	(MB_CUR_MAX>1?_isctype(c,_UC):_pctype[c]&_UC)
+#define isxdigit(c)	(MB_CUR_MAX>1?_isctype(c,_HEX):_pctype[c]&_HEX)
+#define isleadbyte(c)	(_pctype[(unsigned char)(c)]&_LEADBYTE)
+#else
+#endif 
+
+#ifndef __STDC__
+#if !defined(_WIN32)
+#endif 
+#define isascii(c)	((unsigned)(c)<0200)
+#define __isascii(c)	((unsigned)(c)<0200)
+#define iscsym(c)	((_ctype[(c)+1]&(_UC|_LC|_DIG))||((c)=='_'))
+#define __iscsym(c)	((_ctype[(c)+1]&(_UC|_LC|_DIG))||((c)=='_'))
+#define iscsymf(c)	((_ctype[(c)+1]&(_UC|_LC))||((c)=='_'))
+#define __iscsymf(c)	((_ctype[(c)+1]&(_UC|_LC))||((c)=='_'))
+#define toascii(c)	((c)&0x7F)
+#define __toascii(c)	((c)&0x7F)
+#define _tolower(c)	((c)+('a'-'A'))
+#define _toupper(c)	((c)-('a'-'A'))
+#endif
+
+#ifdef __NT__
+#ifndef __STDC__
+#define iswalpha(c)	(iswctype(c, _ALPHA))
+#define iswupper(c)	(iswctype(c, _UPPER))
+#define iswlower(c)	(iswctype(c, _LOWER))
+#define iswdigit(c)	(iswctype(c, _DIGIT))
+#define iswxdigit(c)	(iswctype(c, _HEX))
+#define iswspace(c)	(iswctype(c, _SPACE))
+#define iswpunct(c)	(iswctype(c, _PUNCT))
+#define iswalnum(c)	(iswctype(c, _ALPHA|_DIGIT))
+#define iswprint(c)	(iswctype(c, _BLANK|_PUNCT|_ALPHA|_DIGIT))
+#define iswgraph(c)	(iswctype(c, _PUNCT|_ALPHA|_DIGIT))
+#define iswcntrl(c)	(iswctype(c, _CONTROL))
+#define iswascii(c)	((unsigned)(c) < 0x80)
+#endif
+#endif
+
+#if __cplusplus
+#endif 
+
+#endif
+
+
+/*
+** State Type
+*/
+
+typedef struct {
+  long pos;
+  long row;
+  long col;
+  int term;
+} mpc_state_t;
+
+/*
+** Error Type
+*/
+
+typedef struct {
+  mpc_state_t state;
+  int expected_num;
+  char *filename;
+  char *failure;
+  char **expected;
+  char received;
+} mpc_err_t;
+
+void mpc_err_delete(mpc_err_t *e);
+char *mpc_err_string(mpc_err_t *e);
+void mpc_err_print(mpc_err_t *e);
+void mpc_err_print_to(mpc_err_t *e, FILE *f);
+
+/*
+** Parsing
+*/
+
+typedef void mpc_val_t;
+
+typedef union {
+  mpc_err_t *error;
+  mpc_val_t *output;
+} mpc_result_t;
+
+struct mpc_parser_t;
+typedef struct mpc_parser_t mpc_parser_t;
+
+int mpc_parse(const char *filename, const char *string, mpc_parser_t *p, mpc_result_t *r);
+int mpc_nparse(const char *filename, const char *string, size_t length, mpc_parser_t *p, mpc_result_t *r);
+int mpc_parse_file(const char *filename, FILE *file, mpc_parser_t *p, mpc_result_t *r);
+int mpc_parse_pipe(const char *filename, FILE *pipe, mpc_parser_t *p, mpc_result_t *r);
+int mpc_parse_contents(const char *filename, mpc_parser_t *p, mpc_result_t *r);
+
+/*
+** Function Types
+*/
+
+typedef void(*mpc_dtor_t)(mpc_val_t*);
+typedef mpc_val_t*(*mpc_ctor_t)(void);
+
+typedef mpc_val_t*(*mpc_apply_t)(mpc_val_t*);
+typedef mpc_val_t*(*mpc_apply_to_t)(mpc_val_t*,void*);
+typedef mpc_val_t*(*mpc_fold_t)(int,mpc_val_t**);
+
+typedef int(*mpc_check_t)(mpc_val_t**);
+typedef int(*mpc_check_with_t)(mpc_val_t**,void*);
+
+/*
+** Building a Parser
+*/
+
+mpc_parser_t *mpc_new(const char *name);
+mpc_parser_t *mpc_copy(mpc_parser_t *a);
+mpc_parser_t *mpc_define(mpc_parser_t *p, mpc_parser_t *a);
+mpc_parser_t *mpc_undefine(mpc_parser_t *p);
+
+void mpc_delete(mpc_parser_t *p);
+void mpc_cleanup(int n, ...);
+
+/*
+** Basic Parsers
+*/
+
+mpc_parser_t *mpc_any(void);
+mpc_parser_t *mpc_char(char c);
+mpc_parser_t *mpc_range(char s, char e);
+mpc_parser_t *mpc_oneof(const char *s);
+mpc_parser_t *mpc_noneof(const char *s);
+mpc_parser_t *mpc_satisfy(int(*f)(char));
+mpc_parser_t *mpc_string(const char *s);
+
+/*
+** Other Parsers
+*/
+
+mpc_parser_t *mpc_pass(void);
+mpc_parser_t *mpc_fail(const char *m);
+mpc_parser_t *mpc_failf(const char *fmt, ...);
+mpc_parser_t *mpc_lift(mpc_ctor_t f);
+mpc_parser_t *mpc_lift_val(mpc_val_t *x);
+mpc_parser_t *mpc_anchor(int(*f)(char,char));
+mpc_parser_t *mpc_state(void);
+
+/*
+** Combinator Parsers
+*/
+
+mpc_parser_t *mpc_expect(mpc_parser_t *a, const char *e);
+mpc_parser_t *mpc_expectf(mpc_parser_t *a, const char *fmt, ...);
+mpc_parser_t *mpc_apply(mpc_parser_t *a, mpc_apply_t f);
+mpc_parser_t *mpc_apply_to(mpc_parser_t *a, mpc_apply_to_t f, void *x);
+mpc_parser_t *mpc_check(mpc_parser_t *a, mpc_dtor_t da, mpc_check_t f, const char *e);
+mpc_parser_t *mpc_check_with(mpc_parser_t *a, mpc_dtor_t da, mpc_check_with_t f, void *x, const char *e);
+mpc_parser_t *mpc_checkf(mpc_parser_t *a, mpc_dtor_t da, mpc_check_t f, const char *fmt, ...);
+mpc_parser_t *mpc_check_withf(mpc_parser_t *a, mpc_dtor_t da, mpc_check_with_t f, void *x, const char *fmt, ...);
+
+mpc_parser_t *mpc_not(mpc_parser_t *a, mpc_dtor_t da);
+mpc_parser_t *mpc_not_lift(mpc_parser_t *a, mpc_dtor_t da, mpc_ctor_t lf);
+mpc_parser_t *mpc_maybe(mpc_parser_t *a);
+mpc_parser_t *mpc_maybe_lift(mpc_parser_t *a, mpc_ctor_t lf);
+
+mpc_parser_t *mpc_many(mpc_fold_t f, mpc_parser_t *a);
+mpc_parser_t *mpc_many1(mpc_fold_t f, mpc_parser_t *a);
+mpc_parser_t *mpc_count(int n, mpc_fold_t f, mpc_parser_t *a, mpc_dtor_t da);
+
+mpc_parser_t *mpc_or(int n, ...);
+mpc_parser_t *mpc_and(int n, mpc_fold_t f, ...);
+
+mpc_parser_t *mpc_predictive(mpc_parser_t *a);
+
+/*
+** Common Parsers
+*/
+
+mpc_parser_t *mpc_eoi(void);
+mpc_parser_t *mpc_soi(void);
+
+mpc_parser_t *mpc_boundary(void);
+mpc_parser_t *mpc_boundary_newline(void);
+
+mpc_parser_t *mpc_whitespace(void);
+mpc_parser_t *mpc_whitespaces(void);
+mpc_parser_t *mpc_blank(void);
+
+mpc_parser_t *mpc_newline(void);
+mpc_parser_t *mpc_tab(void);
+mpc_parser_t *mpc_escape(void);
+
+mpc_parser_t *mpc_digit(void);
+mpc_parser_t *mpc_hexdigit(void);
+mpc_parser_t *mpc_octdigit(void);
+mpc_parser_t *mpc_digits(void);
+mpc_parser_t *mpc_hexdigits(void);
+mpc_parser_t *mpc_octdigits(void);
+
+mpc_parser_t *mpc_lower(void);
+mpc_parser_t *mpc_upper(void);
+mpc_parser_t *mpc_alpha(void);
+mpc_parser_t *mpc_underscore(void);
+mpc_parser_t *mpc_alphanum(void);
+
+mpc_parser_t *mpc_int(void);
+mpc_parser_t *mpc_hex(void);
+mpc_parser_t *mpc_oct(void);
+mpc_parser_t *mpc_number(void);
+
+mpc_parser_t *mpc_real(void);
+mpc_parser_t *mpc_float(void);
+
+mpc_parser_t *mpc_char_lit(void);
+mpc_parser_t *mpc_string_lit(void);
+mpc_parser_t *mpc_regex_lit(void);
+
+mpc_parser_t *mpc_ident(void);
+
+/*
+** Useful Parsers
+*/
+
+mpc_parser_t *mpc_startwith(mpc_parser_t *a);
+mpc_parser_t *mpc_endwith(mpc_parser_t *a, mpc_dtor_t da);
+mpc_parser_t *mpc_whole(mpc_parser_t *a, mpc_dtor_t da);
+
+mpc_parser_t *mpc_stripl(mpc_parser_t *a);
+mpc_parser_t *mpc_stripr(mpc_parser_t *a);
+mpc_parser_t *mpc_strip(mpc_parser_t *a);
+mpc_parser_t *mpc_tok(mpc_parser_t *a);
+mpc_parser_t *mpc_sym(const char *s);
+mpc_parser_t *mpc_total(mpc_parser_t *a, mpc_dtor_t da);
+
+mpc_parser_t *mpc_between(mpc_parser_t *a, mpc_dtor_t ad, const char *o, const char *c);
+mpc_parser_t *mpc_parens(mpc_parser_t *a, mpc_dtor_t ad);
+mpc_parser_t *mpc_braces(mpc_parser_t *a, mpc_dtor_t ad);
+mpc_parser_t *mpc_brackets(mpc_parser_t *a, mpc_dtor_t ad);
+mpc_parser_t *mpc_squares(mpc_parser_t *a, mpc_dtor_t ad);
+
+mpc_parser_t *mpc_tok_between(mpc_parser_t *a, mpc_dtor_t ad, const char *o, const char *c);
+mpc_parser_t *mpc_tok_parens(mpc_parser_t *a, mpc_dtor_t ad);
+mpc_parser_t *mpc_tok_braces(mpc_parser_t *a, mpc_dtor_t ad);
+mpc_parser_t *mpc_tok_brackets(mpc_parser_t *a, mpc_dtor_t ad);
+mpc_parser_t *mpc_tok_squares(mpc_parser_t *a, mpc_dtor_t ad);
+
+/*
+** Common Function Parameters
+*/
+
+void mpcf_dtor_null(mpc_val_t *x);
+
+mpc_val_t *mpcf_ctor_null(void);
+mpc_val_t *mpcf_ctor_str(void);
+
+mpc_val_t *mpcf_free(mpc_val_t *x);
+mpc_val_t *mpcf_int(mpc_val_t *x);
+mpc_val_t *mpcf_hex(mpc_val_t *x);
+mpc_val_t *mpcf_oct(mpc_val_t *x);
+mpc_val_t *mpcf_float(mpc_val_t *x);
+mpc_val_t *mpcf_strtriml(mpc_val_t *x);
+mpc_val_t *mpcf_strtrimr(mpc_val_t *x);
+mpc_val_t *mpcf_strtrim(mpc_val_t *x);
+
+mpc_val_t *mpcf_escape(mpc_val_t *x);
+mpc_val_t *mpcf_escape_regex(mpc_val_t *x);
+mpc_val_t *mpcf_escape_string_raw(mpc_val_t *x);
+mpc_val_t *mpcf_escape_char_raw(mpc_val_t *x);
+
+mpc_val_t *mpcf_unescape(mpc_val_t *x);
+mpc_val_t *mpcf_unescape_regex(mpc_val_t *x);
+mpc_val_t *mpcf_unescape_string_raw(mpc_val_t *x);
+mpc_val_t *mpcf_unescape_char_raw(mpc_val_t *x);
+
+mpc_val_t *mpcf_null(int n, mpc_val_t** xs);
+mpc_val_t *mpcf_fst(int n, mpc_val_t** xs);
+mpc_val_t *mpcf_snd(int n, mpc_val_t** xs);
+mpc_val_t *mpcf_trd(int n, mpc_val_t** xs);
+
+mpc_val_t *mpcf_fst_free(int n, mpc_val_t** xs);
+mpc_val_t *mpcf_snd_free(int n, mpc_val_t** xs);
+mpc_val_t *mpcf_trd_free(int n, mpc_val_t** xs);
+mpc_val_t *mpcf_all_free(int n, mpc_val_t** xs);
+
+mpc_val_t *mpcf_freefold(int n, mpc_val_t** xs);
+mpc_val_t *mpcf_strfold(int n, mpc_val_t** xs);
+mpc_val_t *mpcf_maths(int n, mpc_val_t** xs);
+
+/*
+** Regular Expression Parsers
+*/
+
+enum {
+  MPC_RE_DEFAULT   = 0,
+  MPC_RE_M         = 1,
+  MPC_RE_S         = 2,
+  MPC_RE_MULTILINE = 1,
+  MPC_RE_DOTALL    = 2
+};
+
+mpc_parser_t *mpc_re(const char *re);
+mpc_parser_t *mpc_re_mode(const char *re, int mode);
+
+/*
+** AST
+*/
+
+typedef struct mpc_ast_t {
+  char *tag;
+  char *contents;
+  mpc_state_t state;
+  int children_num;
+  struct mpc_ast_t** children;
+} mpc_ast_t;
+
+mpc_ast_t *mpc_ast_new(const char *tag, const char *contents);
+mpc_ast_t *mpc_ast_build(int n, const char *tag, ...);
+mpc_ast_t *mpc_ast_add_root(mpc_ast_t *a);
+mpc_ast_t *mpc_ast_add_child(mpc_ast_t *r, mpc_ast_t *a);
+mpc_ast_t *mpc_ast_add_tag(mpc_ast_t *a, const char *t);
+mpc_ast_t *mpc_ast_add_root_tag(mpc_ast_t *a, const char *t);
+mpc_ast_t *mpc_ast_tag(mpc_ast_t *a, const char *t);
+mpc_ast_t *mpc_ast_state(mpc_ast_t *a, mpc_state_t s);
+
+void mpc_ast_delete(mpc_ast_t *a);
+void mpc_ast_print(mpc_ast_t *a);
+void mpc_ast_print_to(mpc_ast_t *a, FILE *fp);
+
+int mpc_ast_get_index(mpc_ast_t *ast, const char *tag);
+int mpc_ast_get_index_lb(mpc_ast_t *ast, const char *tag, int lb);
+mpc_ast_t *mpc_ast_get_child(mpc_ast_t *ast, const char *tag);
+mpc_ast_t *mpc_ast_get_child_lb(mpc_ast_t *ast, const char *tag, int lb);
+
+typedef enum {
+  mpc_ast_trav_order_pre,
+  mpc_ast_trav_order_post
+} mpc_ast_trav_order_t;
+
+typedef struct mpc_ast_trav_t {
+  mpc_ast_t             *curr_node;
+  struct mpc_ast_trav_t *parent;
+  int                    curr_child;
+  mpc_ast_trav_order_t   order;
+} mpc_ast_trav_t;
+
+mpc_ast_trav_t *mpc_ast_traverse_start(mpc_ast_t *ast,
+                                       mpc_ast_trav_order_t order);
+
+mpc_ast_t *mpc_ast_traverse_next(mpc_ast_trav_t **trav);
+
+void mpc_ast_traverse_free(mpc_ast_trav_t **trav);
+
+/*
+** Warning: This function currently doesn't test for equality of the `state` member!
+*/
+int mpc_ast_eq(mpc_ast_t *a, mpc_ast_t *b);
+
+mpc_val_t *mpcf_fold_ast(int n, mpc_val_t **as);
+mpc_val_t *mpcf_str_ast(mpc_val_t *c);
+mpc_val_t *mpcf_state_ast(int n, mpc_val_t **xs);
+
+mpc_parser_t *mpca_tag(mpc_parser_t *a, const char *t);
+mpc_parser_t *mpca_add_tag(mpc_parser_t *a, const char *t);
+mpc_parser_t *mpca_root(mpc_parser_t *a);
+mpc_parser_t *mpca_state(mpc_parser_t *a);
+mpc_parser_t *mpca_total(mpc_parser_t *a);
+
+mpc_parser_t *mpca_not(mpc_parser_t *a);
+mpc_parser_t *mpca_maybe(mpc_parser_t *a);
+
+mpc_parser_t *mpca_many(mpc_parser_t *a);
+mpc_parser_t *mpca_many1(mpc_parser_t *a);
+mpc_parser_t *mpca_count(int n, mpc_parser_t *a);
+
+mpc_parser_t *mpca_or(int n, ...);
+mpc_parser_t *mpca_and(int n, ...);
+
+enum {
+  MPCA_LANG_DEFAULT              = 0,
+  MPCA_LANG_PREDICTIVE           = 1,
+  MPCA_LANG_WHITESPACE_SENSITIVE = 2
+};
+
+mpc_parser_t *mpca_grammar(int flags, const char *grammar, ...);
+
+mpc_err_t *mpca_lang(int flags, const char *language, ...);
+mpc_err_t *mpca_lang_file(int flags, FILE *f, ...);
+mpc_err_t *mpca_lang_pipe(int flags, FILE *f, ...);
+mpc_err_t *mpca_lang_contents(int flags, const char *filename, ...);
+
+/*
+** Misc
+*/
+
+
+void mpc_print(mpc_parser_t *p);
+void mpc_optimise(mpc_parser_t *p);
+void mpc_stats(mpc_parser_t *p);
+
+int mpc_test_pass(mpc_parser_t *p, const char *s, const void *d,
+  int(*tester)(const void*, const void*),
+  mpc_dtor_t destructor,
+  void(*printer)(const void*));
+
+int mpc_test_fail(mpc_parser_t *p, const char *s, const void *d,
+  int(*tester)(const void*, const void*),
+  mpc_dtor_t destructor,
+  void(*printer)(const void*));
+
+#ifdef __cplusplus
+#endif 
+
+#endif
+
+
+
+#define LASSERT(args, cond, fmt, ...)   if (!(cond)) {                          lval_del(args);                          return lval_err(fmt, __VA_ARGS__);   } 
+static char buffer[2048];
+
+#ifdef _WIN32
+char* readline(char* promt) {
+  fputs("lispy> ", (&_iob[1]));
+  fgets(buffer, 2048, (&_iob[0]));
+  char* cpy = (char*)malloc(strlen(buffer) + 1);
+  strcpy(cpy, buffer);
+  cpy[strlen(cpy) - 1] = '\0';
+  return cpy;
+}
+
+void add_history(char* unused) {
+
+}
+
+#endif
+
+enum { LVAL_NUM, LVAL_ERR, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR, LVAL_FN};
+enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
+
+struct lval;
+struct lenv;
+
+typedef struct lval lval;
+typedef struct lenv lenv;
+
+typedef lval* (*lbuiltin)(lenv*, lval*);
+
+lval* lval_println(lval* v);
+lval* lval_join(lval* x, lval* y);
+lval* lval_eval_sexpr(lenv* e, lval* v);
+lval* lval_eval(lenv* e, lval* v);
+lval* lval_copy(lval* v);
+void  lval_del(lval* v);
+lval* lval_sym(char* s);
+lval* lval_num(long x);
+lval* lval_err(char* fmt, ...);
+lval* lval_fn(lbuiltin f);
+
+/* ========================================== */
+lval* builtin_eval(lenv* e, lval* v);
+lval* builtin_list(lenv* e, lval* v);
+lval* builtin_head(lenv* e, lval* v);
+lval* builtin_tail(lenv* e, lval* v);
+lval* builtin_join(lenv* e, lval* v);
+lval* builtin_def(lenv* e, lval* a);
+lval* builtin_add(lenv* e, lval* v);
+lval* builtin_sub(lenv* e, lval* v);
+lval* builtin_mul(lenv* e, lval* v);
+lval* builtin_div(lenv* e, lval* v);
+/* ========================================== */
+lval* builtin_op(lval* v, char* o);
+
+struct lval {
+  int type;
+  /* ==================================*/
+  long num;
+  char* err;
+  char* sym;
+  lbuiltin fn;
+  /* ==================================*/
+  int count;
+  lval** cell;
+}; 
+
+struct lenv {
+  int count;
+  char** syms;
+  lval** vals;
+};
+
+
+lenv* lenv_new() {
+  lenv* e = malloc(sizeof(lenv));
+  e->count = 0;
+  e->syms = ((void *)0);
+  e->vals = ((void *)0);
+  return e;
+}
+
+void lenv_del(lenv* e) {
+  for (int i = 0; i < e->count; i++) {
+    free(e->syms[i]);
+    lval_del(e->vals[i]);
+  }
+  free(e->syms);
+  free(e->vals);
+  free(e);
+}
+
+lval* lenv_get(lenv* e, lval* k) {
+  for (int i = 0; i < e->count; i++) {
+    if (strcmp(e->syms[i], k->sym) == 0) {
+      return lval_copy(e->vals[i]);
+    }
+  }
+  return lval_err("Unbound symbol!");
+}
+
+lval* lenv_put(lenv* e, lval* k, lval* v) {
+  for (int i = 0; i < e->count; i++) {
+    if (strcmp(e->syms[i], k->sym) == 0) {
+      lval_del(e->vals[i]);
+      e->vals[i] = lval_copy(v);
+      return;
+    }
+  }
+  /* ========================================== */
+  e->count++;
+  e->vals = realloc(e->vals, sizeof(lval*) * e->count);
+  e->syms = realloc(e->syms, sizeof(char*) * e->count);
+  /* ========================================== */
+  e->syms[e->count - 1] = malloc(strlen(k->sym) + 1);
+  strcpy(e->syms[e->count - 1], k->sym);
+  /* ========================================== */
+  e->vals[e->count - 1] = lval_copy(v);
+  /* ========================================== */
+  return e->vals[e->count - 1];
+}
+
+lenv* lenv_add_builtin(lenv* e, char* name, lbuiltin f) {
+  lval* k = lval_sym(name);
+  lval* v = lval_fn(f);
+  lenv_put(e, k, v);
+  /* ========================================== */
+  lval_del(k);
+  lval_del(v);
+  /* ========================================== */
+  return e;
+}
+
+lenv* lenv_add_builtins(lenv* e) {
+  lenv_add_builtin(e, "list", builtin_list);
+  lenv_add_builtin(e, "head", builtin_head);
+  lenv_add_builtin(e, "eval", builtin_eval);
+  lenv_add_builtin(e, "tail", builtin_tail);
+  lenv_add_builtin(e, "join", builtin_join);
+  lenv_add_builtin(e, "def",  builtin_def);
+  lenv_add_builtin(e, "+",    builtin_add);
+  lenv_add_builtin(e, "-",    builtin_sub);
+  lenv_add_builtin(e, "*",    builtin_mul);
+  lenv_add_builtin(e, "/",    builtin_div);
+  
+  return e;
+}
+
+
+lval* lval_num(long x) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_NUM;
+  v->num = x;
+  return v;
+}
+
+lval* lval_err(char* fmt, ...) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_ERR;
+  /* =========================================== */
+  va_list va;
+  ((void)((va) = (va_list)&(fmt)+((sizeof(fmt) + 3) & ~3)));
+  /* =========================================== */
+  v->err  = malloc(512);
+  vsnprintf(v->err, 511, fmt, va);
+  v->err = realloc(v->err, strlen(v->err) + 1);
+  /* =========================================== */
+  ((void)0);
+  /* =========================================== */
+  return v;
+}
+
+lval* lval_sym(char* s) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_SYM;
+  v->sym = malloc(strlen(s) + 1);
+  strcpy(v->sym, s);
+  return v;
+}
+
+lval* lval_fn(lbuiltin f) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_FN;
+  v->fn = f;
+  return v;
+}
+
+
+lval* lval_sexpr(void) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_SEXPR;
+  v->count = 0;
+  v->cell = ((void *)0);
+  return v;
+}
+
+lval* lval_qexpr(void) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_QEXPR;
+  v->count = 0;
+  v->cell = ((void *)0);
+  return v;
+}
+
+
+void lval_del(lval* v) {
+  switch (v->type) {
+    case LVAL_NUM:
+      break;
+    case LVAL_ERR:
+      free(v->err);
+      break;
+    case LVAL_SYM:
+      free(v->sym);
+      break;
+    case LVAL_SEXPR:
+    case LVAL_QEXPR:
+      for (int i = 0; i < v->count; i++)
+        lval_del(v->cell[i]);
+      free(v->cell);
+      break;
+    case LVAL_FN:
+      break;
+  }
+}
+
+lval* lval_add(lval* v, lval* x) {
+  v->count++;
+  v->cell = realloc(v->cell, sizeof(lval*) * v->count);
+  v->cell[v->count-1] = x;
+  return v;
+}
+
+
+lval* lval_read(mpc_ast_t* t) {
+  if (strstr(t->tag, "number")) {return lval_num(strtol(t->contents, ((void *)0), 10));}
+  if (strstr(t->tag, "symbol")) {return lval_sym(t->contents);}
+
+  lval* x = ((void *)0);
+  if (strcmp(t->tag, "expr|>") == 0) { return lval_read(t->children[0]); }
+  if (strcmp(t->tag, ">") == 0) { x = lval_sexpr(); }
+  if (strstr(t->tag, "sexpr")) {x = lval_sexpr();}
+  if (strstr(t->tag, "qexpr")) {x = lval_qexpr();}
+
+
+  for (int i = 0; i < t->children_num; i++) {
+    if (strcmp(t->children[i]->contents, "(") == 0) {continue;}
+    if (strcmp(t->children[i]->contents, ")") == 0) {continue;}
+    if (strcmp(t->children[i]->contents, "`") == 0) {continue;}
+    if (strcmp(t->children[i]->contents, "{") == 0) {continue;}
+    if (strcmp(t->children[i]->contents, "}") == 0) {continue;}
+    if (strcmp(t->children[i]->contents, "regex") == 0) {continue;}
+    x = lval_add(x, lval_read(t->children[i]));
+  }
+  return x;
+}
+
+
+
+
+void lval_print(lval* v);
+
+void lval_expr_print(lval* v, char* open, char* close) {
+  printf("%s", open);
+  for (int i = 0; i < v->count; i++) {
+    lval_print(v->cell[i]);
+    if (i != v->count - 1)
+      fputc((' '),((&_iob[1])));
+  }
+  printf("%s", close);
+}
+
+void lval_print(lval* v) {
+  switch (v->type) {
+    case LVAL_NUM:   printf("%li", v->num);         break;
+    case LVAL_ERR:   printf("Error: %s", v->err);   break;
+    case LVAL_SYM:   printf("%s", v->sym);          break;
+    case LVAL_SEXPR: lval_expr_print(v, "(", ")");  break;
+    case LVAL_QEXPR: lval_expr_print(v, "`(", ")"); break;
+    case LVAL_FN:    printf("<FN>");                break;
+  }
+}
+
+lval* lval_println(lval* v) {
+  lval_print(v);
+  fputc(('\n'),((&_iob[1])));
+  return v;
+}
+
+lval* lval_pop(lval* v, int i) {
+  lval* x = v->cell[i];
+  memmove(&v->cell[i], &v->cell[i+1], sizeof(lval*) * (v->count - 1 - i));
+  v->count--;
+  v->cell = realloc(v->cell, sizeof(lval*) * v->count);
+  return x;
+}
+
+lval* lval_take(lval* v, int i) {
+  lval* x = lval_pop(v, i);
+  lval_del(v);
+  return x;
+}
+
+lval* lval_join(lval* x, lval* y) {
+  /* ======================================== */
+  while (y->count > 0) {
+    x = lval_add(x, lval_pop(y, 0));
+  }
+  /* ======================================== */
+  lval_del(y);
+  /* ======================================== */
+  return x;
+}
+
+lval* lval_eval(lenv* e, lval* v) {
+  /* ======================================== */
+  if (v->type == LVAL_SEXPR)
+    return lval_eval_sexpr(e, v);
+  /* ======================================== */
+  if (v->type == LVAL_SYM) {
+    return lenv_get(e, v);
+  }
+  /* ======================================== */
+  return v;
+}
+
+lval* lval_eval_sexpr(lenv* e, lval* v) {
+  /* ======================================== */
+  for (int i = 0; i < v->count; i++)
+    v->cell[i] = lval_eval(e, v->cell[i]);
+  /* ======================================== */
+  for (int i = 0; i < v->count; i++) {
+    if (v->cell[i]->type == LVAL_ERR)
+      return lval_take(v, i);
+  }
+  /* ======================================== */
+  if (v->count == 0)
+    return v;
+  /* ======================================== */
+  if (v->count == 1)
+    return lval_take(v, 0);
+  /* ======================================== */
+  lval* f = lval_pop(v, 0);
+  if (f->type != LVAL_FN) {
+    lval_del(f), lval_del(v);
+    return lval_err("Function Expected");
+  }
+  /* ======================================== */
+  lval* result = f->fn(e, v);
+  /* ======================================== */
+  lval_del(f);
+  /* ======================================== */
+  return result;
+}
+
+lval* lval_copy(lval* v) {
+  lval* x = malloc(sizeof(lval));
+  x->type = v->type;
+  switch (v->type) {
+    case LVAL_NUM:   x->num  = v->num;                                                break;
+    case LVAL_FN:    x->fn   = v->fn;                                                 break;
+    case LVAL_ERR:   x->err  = malloc(strlen(v->err + 1)); strcpy(x->err, v->err);    break;
+    case LVAL_SYM:   x->err  = malloc(strlen(v->sym + 1)); strcpy(x->sym, v->sym);    break;
+    case LVAL_SEXPR:
+    case LVAL_QEXPR: {
+      x->cell = malloc(sizeof(lval*) * v->count);
+      x->count = v->count;
+      for (int i = 0; i < v->count; i++) x->cell[i] = lval_copy(v->cell[i]);
+      break;
+    }
+  }
+  return x;
+}
+
+
+
+lval* builtin_head(lenv* e, lval* v) {
+  if (!(v->count == 1)) { lval_del(v); return lval_err("Tail: to many arguments", );
+                                                                                   ^
+letsstart.c(387) : Error: expression expected
+
+  if (!(v->count == 1)) { lval_del(v); return lval_err("Tail: to many arguments", ); };
+  if (!(v->cell[0]->type == LVAL_QEXPR)) { lval_del(v); return lval_err("Tail: incorect types", );
+                                                                                                 ^
+letsstart.c(388) : Error: expression expected
+
+  if (!(v->cell[0]->type == LVAL_QEXPR)) { lval_del(v); return lval_err("Tail: incorect types", ); };
+  if (!(v->cell[0]->count > 0)) { lval_del(v); return lval_err("Tail: empty list", );
+                                                                                    ^
+letsstart.c(389) : Error: expression expected
+
+  if (!(v->cell[0]->count > 0)) { lval_del(v); return lval_err("Tail: empty list", ); };
+  /* =================================================== */
+  lval* a = lval_take(v, 0);
+  /* =================================================== */
+  while (a->count > 1) { lval_del(lval_pop(a, 1)); }
+  /* =================================================== */
+  return a;
+}
+
+lval* builtin_tail(lenv* e, lval* v) {
+                                     ^
+letsstart.c(398) : Error: expected data def of 'builtin_tail', not func def
+
+lval* builtin_tail(lenv* e, lval* v) {
+  if (!(v->count == 1)) { lval_del(v); return lval_err("Tail: to many arguments", );
+                                                                                   ^
+letsstart.c(399) : Error: expression expected
+

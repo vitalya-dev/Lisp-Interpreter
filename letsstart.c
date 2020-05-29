@@ -2,7 +2,12 @@
 #include "mpc.h"
 
 
-#define LASSERT(args, cond, err) if (!(cond)) {lval_del(args); return lval_err(err);}
+#define LASSERT(args, cond, ...)         \
+  if (!(cond)) {                         \
+    lval* err = lval_err(__VA_ARGS__);   \
+    lval_del(args);                      \
+    return err;                          \
+  }                                      \
 
 static char buffer[2048];
 
@@ -41,7 +46,7 @@ lval* lval_copy(lval* v);
 void  lval_del(lval* v);
 lval* lval_sym(char* s);
 lval* lval_num(long x);
-lval* lval_err(char* e);
+lval* lval_err(char* fmt, ...);
 lval* lval_fn(lbuiltin f);
 
 /* ========================================== */
@@ -75,6 +80,27 @@ struct lenv {
   char** syms;
   lval** vals;
 };
+
+
+char* ltype_name(int t) {
+  printf("%d\n", t);
+  switch (t) {
+    case LVAL_NUM:
+      return "Number";
+    case LVAL_ERR:
+      return "Function";
+    case LVAL_SEXPR:
+      return "S-Expression";
+    case LVAL_QEXPR:
+      return "Q-Expression";
+    case LVAL_FN:
+      return "Function";
+    case LVAL_SYM:
+      return "Symbol";
+    default:
+      return "Unknown type";
+  }
+}
 
 
 lenv* lenv_new() {
@@ -159,11 +185,19 @@ lval* lval_num(long x) {
   return v;
 }
 
-lval* lval_err(char* e) {
+lval* lval_err(char* fmt, ...) {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_ERR;
-  v->err  = malloc(strlen(e) + 1);
-  strcpy(v->err, e);
+  /* =========================================== */
+  va_list va;
+  va_start(va, fmt);
+  /* =========================================== */
+  v->err  = malloc(512);
+  vsnprintf(v->err, 511, fmt, va);
+  v->err = realloc(v->err, strlen(v->err) + 1);
+  /* =========================================== */
+  va_end(va);
+  /* =========================================== */
   return v;
 }
 
@@ -372,9 +406,10 @@ lval* lval_copy(lval* v) {
 
 
 lval* builtin_head(lenv* e, lval* v) {
-  LASSERT(v, v->count == 1, "Tail: to many arguments");
-  LASSERT(v, v->cell[0]->type == LVAL_QEXPR, "Tail: incorect types");
-  LASSERT(v, v->cell[0]->count > 0, "Tail: empty list");
+  LASSERT(v, v->count == 1, "Head: to many arguments: %d", v->count);
+  LASSERT(v, v->cell[0]->type == LVAL_QEXPR,
+          "Head: incorect type: %s", ltype_name(v->cell[0]->type));
+  LASSERT(v, v->cell[0]->count > 0, "Head: empty list");
   /* =================================================== */
   lval* a = lval_take(v, 0);
   /* =================================================== */
