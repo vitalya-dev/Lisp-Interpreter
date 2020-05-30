@@ -38,6 +38,8 @@ typedef struct lenv lenv;
 
 typedef lval* (*lbuiltin)(lenv*, lval*);
 
+lenv* lenv_copy(lenv* v);
+/* ========================================== */
 lval* lval_println(lval* v);
 lval* lval_join(lval* x, lval* y);
 lval* lval_eval_sexpr(lenv* e, lval* v);
@@ -47,8 +49,8 @@ void  lval_del(lval* v);
 lval* lval_sym(char* s);
 lval* lval_num(long x);
 lval* lval_err(char* fmt, ...);
-lval* lval_fn(lbuiltin f);
-
+lval* lval_builtin(lbuiltin f);
+lval* lval_lambda(lval* formals, lval* body);
 /* ========================================== */
 lval* builtin_eval(lenv* e, lval* v);
 lval* builtin_list(lenv* e, lval* v);
@@ -69,7 +71,11 @@ struct lval {
   long num;
   char* err;
   char* sym;
-  lbuiltin fn;
+  /* ==================================*/
+  lbuiltin builtin;
+  lenv* env;
+  lval* formals;
+  lval* body;
   /* ==================================*/
   int count;
   lval** cell;
@@ -121,6 +127,10 @@ void lenv_del(lenv* e) {
   free(e);
 }
 
+lenv* lenv_copy(lenv* e) {
+  return lenv_new();
+}
+
 lval* lenv_get(lenv* e, lval* k) {
   for (int i = 0; i < e->count; i++) {
     if (strcmp(e->syms[i], k->sym) == 0) {
@@ -153,7 +163,7 @@ lval* lenv_put(lenv* e, lval* k, lval* v) {
 
 lenv* lenv_add_builtin(lenv* e, char* name, lbuiltin f) {
   lval* k = lval_sym(name);
-  lval* v = lval_fn(f);
+  lval* v = lval_builtin(f);
   lenv_put(e, k, v);
   /* ========================================== */
   lval_del(k);
@@ -173,7 +183,6 @@ lenv* lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "-",    builtin_sub);
   lenv_add_builtin(e, "*",    builtin_mul);
   lenv_add_builtin(e, "/",    builtin_div);
-  
   return e;
 }
 
@@ -209,10 +218,10 @@ lval* lval_sym(char* s) {
   return v;
 }
 
-lval* lval_fn(lbuiltin f) {
+lval* lval_builtin(lbuiltin f) {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_FN;
-  v->fn = f;
+  v->builtin = f;
   return v;
 }
 
@@ -234,6 +243,21 @@ lval* lval_qexpr(void) {
 }
 
 
+lval* lval_lambda(lval* formals, lval* body) {
+  lval* v = malloc(sizeof(lval));
+  /* ======================================= */
+  v->type = LVAL_FN;
+  v->builtin = NULL;
+  /* ======================================= */
+  v->env = lenv_new();
+  v->formals = formals;
+  v->body = body;
+  /* ======================================= */
+  return v;
+}
+
+
+
 void lval_del(lval* v) {
   switch (v->type) {
     case LVAL_NUM:
@@ -251,6 +275,11 @@ void lval_del(lval* v) {
       free(v->cell);
       break;
     case LVAL_FN:
+      if (v->builtin == NULL) {
+        lenv_del(v->env);
+        lval_del(v->formals);
+        lval_del(v->body);
+      }
       break;
   }
 }
@@ -308,7 +337,10 @@ void lval_print(lval* v) {
     case LVAL_SYM:   printf("%s", v->sym);          break;
     case LVAL_SEXPR: lval_expr_print(v, "(", ")");  break;
     case LVAL_QEXPR: lval_expr_print(v, "`(", ")"); break;
-    case LVAL_FN:    printf("<FN>");                break;
+    case LVAL_FN:
+      if (v->builtin) printf("<FN>");
+      else printf("("); lval_print(v->formals); putchar(' '); lval_print(v->body); putchar(')');
+      break;
   }
 }
 
@@ -377,7 +409,7 @@ lval* lval_eval_sexpr(lenv* e, lval* v) {
     return lval_err("Function Expected");
   }
   /* ======================================== */
-  lval* result = f->fn(e, v);
+  lval* result = f->builtin(e, v);
   /* ======================================== */
   lval_del(f);
   /* ======================================== */
@@ -389,7 +421,14 @@ lval* lval_copy(lval* v) {
   x->type = v->type;
   switch (v->type) {
     case LVAL_NUM:   x->num  = v->num;                                                break;
-    case LVAL_FN:    x->fn   = v->fn;                                                 break;
+    case LVAL_FN:
+      x->builtin = v->builtin;
+      if (x->builtin == NULL) {
+        x->env = lenv_copy(v->env);
+        x->formals = lval_copy(v->formals);
+        x->body = lval_copy(v->body);
+      }
+      break;
     case LVAL_ERR:   x->err  = malloc(strlen(v->err + 1)); strcpy(x->err, v->err);    break;
     case LVAL_SYM:   x->err  = malloc(strlen(v->sym + 1)); strcpy(x->sym, v->sym);    break;
     case LVAL_SEXPR:
@@ -477,6 +516,24 @@ lval* builtin_def(lenv* e, lval* v) {
   return lval_sexpr();
 }
 
+lval* builtin_lambda(lenv* e, lval* v) {
+  LASSERT(v, v->count == 2, "Lamda: 2 args expected");
+  LASSERT(v, v->cell[0]->type == LVAL_QEXPR, "Lamda: 1 arg QEXPR expected");
+  LASSERT(v, v->cell[1]->type == LVAL_QEXPR, "Lamda: 2 arg QEXPR expected");
+  /* ================================================= */
+  for (int i = 0; i < v->cell[0]->count; i++) {
+    LASSERT(v, v->cell[0]->cell[i]->type == LVAL_SYM, "Lambda: Symbols expected");
+  }
+  /* ================================================= */
+  lval* formals = lval_pop(v, 0);
+  lval* body = lval_pop(v, 0);
+  /* ================================================= */
+  lval_del(v);
+  /* ================================================= */
+  return lval_lambda(formals, body);
+}
+
+
 lval* builtin_add(lenv* e, lval* v) {
   return builtin_op(v, "+");
 }
@@ -554,7 +611,6 @@ int main(int argc, char** argv) {
   /* =================================================== */
   lenv* env = lenv_new();
   env = lenv_add_builtins(env);
-  
   /* =================================================== */
   puts("Lispy version 0.0.0.0.1");
   puts("Press ctrl-c to Exit\n");
