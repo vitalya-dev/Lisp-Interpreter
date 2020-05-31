@@ -86,6 +86,8 @@ struct lval {
 }; 
 
 struct lenv {
+  lenv* par;
+  /* ============================= */
   int count;
   char** syms;
   lval** vals;
@@ -115,6 +117,9 @@ char* ltype_name(int t) {
 
 lenv* lenv_new() {
   lenv* e = malloc(sizeof(lenv));
+  /* ============================= */
+  e->par = NULL;
+  /* ============================= */
   e->count = 0;
   e->syms = NULL;
   e->vals = NULL;
@@ -132,6 +137,7 @@ void lenv_del(lenv* e) {
 }
 
 lenv* lenv_copy(lenv* e) {
+  
   return lenv_new();
 }
 
@@ -141,7 +147,10 @@ lval* lenv_get(lenv* e, lval* k) {
       return lval_copy(e->vals[i]);
     }
   }
-  return lval_err("Unbound symbol:%s!", k->sym);
+  if (e->par)
+    return lenv_get(e->par, k);
+  else
+    return lval_err("Unbound symbol:%s!", k->sym);
 }
 
 lval* lenv_put(lenv* e, lval* k, lval* v) {
@@ -435,7 +444,8 @@ lval* lval_eval_sexpr(lenv* e, lval* v) {
   if (f->builtin)
     result = f->builtin(e, v);
   else {
-    result = builtin_eval(e, lval_add(lval_sexpr(), lval_copy(f->body)));
+    f->env->par = e;
+    result = builtin_eval(f->env, lval_add(lval_sexpr(), lval_copy(f->body)));
   }
   /* ======================================== */
   lval_del(f);
