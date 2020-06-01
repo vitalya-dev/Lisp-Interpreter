@@ -150,7 +150,7 @@ lval* lenv_get(lenv* e, lval* k) {
   if (e->par)
     return lenv_get(e->par, k);
   else
-    return lval_err("Unbound symbol:%s!", k->sym);
+    return lval_err("Unbound symbol: %s", k->sym);
 }
 
 lval* lenv_put(lenv* e, lval* k, lval* v) {
@@ -325,9 +325,9 @@ lval* lval_read(mpc_ast_t* t) {
   if (strstr(t->tag, "string")) {return lval_str(t->contents);}
 
   lval* x = NULL;
-  if (strcmp(t->tag, ">") == 0) { return lval_read(t->children[0]); }
-  if (strstr(t->tag, "sexpr")) {x = lval_sexpr();}
-  if (strstr(t->tag, "qexpr")) {x = lval_qexpr();}
+  if (strcmp(t->tag, ">") == 0) { x = lval_sexpr(); }
+  if (strstr(t->tag, "sexpr"))  { x = lval_sexpr(); }
+  if (strstr(t->tag, "qexpr"))  { x = lval_qexpr(); }
 
 
   for (int i = 0; i < t->children_num; i++) {
@@ -444,6 +444,20 @@ lval* lval_eval_sexpr(lenv* e, lval* v) {
   if (f->builtin)
     result = f->builtin(e, v);
   else {
+    if (f->formals->count != v->count) {
+      lval* err = lval_err("Lambda: expected %d arguments. Got %d arguments",
+                           f->formals->count, v->count);
+      /* ======================================== */
+      lval_del(f);
+      lval_del(v);
+      /* ======================================== */
+      return err;
+    }
+    for (int i = 0; i < f->formals->count; i++)
+      lenv_put(f->env, f->formals->cell[i], v->cell[i]);
+    /* ====================================== */
+    lval_del(v);
+    /* ====================================== */
     f->env->par = e;
     result = builtin_eval(f->env, lval_add(lval_sexpr(), lval_copy(f->body)));
   }
@@ -657,7 +671,7 @@ int main(int argc, char** argv) {
              sexpr     : '(' <expr>* ')'                            ;\
              qexpr     : '`' '(' <expr>* ')'                            ;\
              expr      : <number> | <string> | <symbol> | <sexpr> | <qexpr>    ;\
-             lispy     : <sexpr>                                  ;\
+             lispy     : <sexpr>+                                  ;\
             ",
             number, symbol, string, sexpr, qexpr, expr, lispy);
   /* =================================================== */
@@ -674,13 +688,14 @@ int main(int argc, char** argv) {
     /* =================================================== */
     mpc_result_t r;
     if (mpc_parse("<stdin>", input, lispy, &r)) {
-      //mpc_ast_print(r.output);
+       lval* prog = lval_read(r.output);
+      /* ========================================= */
+      lval* result = NULL;
+      for (int i = 0; i < prog->count; i++)
+        result = lval_eval(env, prog->cell[i]);
+      /* ========================================= */
+      lval_println(result);
       /* ====================================== */
-      /* lval* val = lval_read(((mpc_ast_t*)r.output)->children[0]); */
-      lval* val = lval_eval(env, lval_read(r.output));
-      lval_println(val);
-      /* ====================================== */
-      //lval_println(lval_read(r.output));
       mpc_ast_delete(r.output);
     } else {
       mpc_err_print(r.error);
