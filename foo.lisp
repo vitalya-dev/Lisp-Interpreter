@@ -1,2 +1,2 @@
-(def `(f) (lambda `(a b c) `(+ a b c)))
-(f 1 2 3)
+(def (foo) (lambda (a b c) (+ a b c)))
+(foo 1 2 3)

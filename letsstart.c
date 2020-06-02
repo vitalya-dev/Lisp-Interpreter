@@ -41,6 +41,7 @@ typedef lval* (*lbuiltin)(lenv*, lval*);
 
 lenv* lenv_copy(lenv* v);
 /* ========================================== */
+void lval_print(lval* v);
 lval* lval_println(lval* v);
 lval* lval_join(lval* x, lval* y);
 lval* lval_eval_sexpr(lenv* e, lval* v);
@@ -52,6 +53,9 @@ lval* lval_num(long x);
 lval* lval_err(char* fmt, ...);
 lval* lval_builtin(lbuiltin f);
 lval* lval_lambda(lval* formals, lval* body);
+/* ========================================== */
+lval* lval_lambda_expand(lval* v);
+lval* lval_def_expand(lval* v);
 /* ========================================== */
 lval* builtin_eval(lenv* e, lval* v);
 lval* builtin_list(lenv* e, lval* v);
@@ -325,7 +329,7 @@ lval* lval_read(mpc_ast_t* t) {
   if (strstr(t->tag, "string")) {return lval_str(t->contents);}
 
   lval* x = NULL;
-  if (strcmp(t->tag, ">") == 0) { x = lval_sexpr(); }
+  if (strcmp(t->tag, ">") == 0) { return lval_read(t->children[0]); }
   if (strstr(t->tag, "sexpr"))  { x = lval_sexpr(); }
   if (strstr(t->tag, "qexpr"))  { x = lval_qexpr(); }
 
@@ -344,8 +348,6 @@ lval* lval_read(mpc_ast_t* t) {
 
 
 
-
-void lval_print(lval* v);
 
 void lval_expr_print(lval* v, char* open, char* close) {
   printf("%s", open);
@@ -407,6 +409,21 @@ lval* lval_join(lval* x, lval* y) {
   return x;
 }
 
+lval* lval_sexpr_expand(lenv* e, lval* v) {
+  if (v->count == 0)
+    return v;
+  /* ======================================== */
+  v = lval_lambda_expand(v);
+  if (v->type == LVAL_ERR)
+    return v;
+  /* ======================================== */
+  v = lval_def_expand(v);
+  if (v->type == LVAL_ERR)
+    return v;
+  /* ======================================== */
+  return v;
+}
+
 lval* lval_eval(lenv* e, lval* v) {
   if (v == NULL)
     return NULL;
@@ -421,7 +438,10 @@ lval* lval_eval(lenv* e, lval* v) {
   return v;
 }
 
-lval* lval_eval_sexpr(lenv* e, lval* v) { 
+lval* lval_eval_sexpr(lenv* e, lval* v) {
+  v = lval_sexpr_expand(e, v);
+  if (v->type == LVAL_ERR)
+    return v;
   /* ======================================== */
   for (int i = 0; i < v->count; i++)
     v->cell[i] = lval_eval(e, v->cell[i]);
@@ -580,6 +600,7 @@ lval* builtin_def(lenv* e, lval* v) {
   return lval_num(1);
 }
 
+
 lval* builtin_lambda(lenv* e, lval* v) {
   LASSERT(v, v->count == 2, "Lamda: 2 args expected");
   LASSERT(v, v->cell[0]->type == LVAL_QEXPR, "Lamda: 1 arg QEXPR expected");
@@ -655,6 +676,32 @@ lval* builtin_op(lval* v, char* op) {
 }
 
 
+lval* lval_lambda_expand(lval* v) {
+  if (v->cell[0]->type == LVAL_SYM && strcmp(v->cell[0]->sym, "lambda") == 0) {
+    LASSERT(v, v->count == 3, "Lamda: 2 args expected");
+    LASSERT(v, v->cell[1]->type == LVAL_SEXPR, "Lamda: 1 arg Sexpr expected");
+    LASSERT(v, v->cell[2]->type == LVAL_SEXPR, "Lamda: 2 arg Sexpr expected");
+    /* ======================================== */
+    v->cell[1]->type = LVAL_QEXPR;
+    v->cell[2]->type = LVAL_QEXPR;
+  }
+  return v;
+}
+
+lval* lval_def_expand(lval* v) {
+  if (v->cell[0]->type == LVAL_SYM && strcmp(v->cell[0]->sym, "def") == 0) {
+    LASSERT(v, v->cell[1]->type == LVAL_SEXPR, "Def: 1 arg Sexpr expected");
+    /* ======================================== */
+    v->cell[1]->type = LVAL_QEXPR;
+  }
+  return v;
+}
+
+
+
+
+
+
 int main(int argc, char** argv) {
   mpc_parser_t* number   =  mpc_new("number");
   mpc_parser_t* string   =  mpc_new("string");
@@ -671,7 +718,7 @@ int main(int argc, char** argv) {
              sexpr     : '(' <expr>* ')'                            ;\
              qexpr     : '`' '(' <expr>* ')'                            ;\
              expr      : <number> | <string> | <symbol> | <sexpr> | <qexpr>    ;\
-             lispy     : <sexpr>+                                  ;\
+             lispy     : <sexpr>                                  ;\
             ",
             number, symbol, string, sexpr, qexpr, expr, lispy);
   /* =================================================== */
@@ -681,20 +728,21 @@ int main(int argc, char** argv) {
   puts("Lispy version 0.0.0.0.1");
   puts("Press ctrl-c to Exit\n");
   /* =================================================== */
-  while (1) {
+  int done = 0;
+  while (!done) {
     char* input = readline("lispy> ");
     if (input == NULL) break;
     add_history(input);
     /* =================================================== */
     mpc_result_t r;
     if (mpc_parse("<stdin>", input, lispy, &r)) {
-       lval* prog = lval_read(r.output);
-      /* ========================================= */
-      lval* result = NULL;
-      for (int i = 0; i < prog->count; i++)
-        result = lval_eval(env, prog->cell[i]);
-      /* ========================================= */
+      lval* input = lval_read(r.output);
+      lval_println(input);
+      /* ====================================== */
+      lval* result = lval_eval(env, input);
       lval_println(result);
+      /* ====================================== */
+      if (result->type == LVAL_ERR) done = 1;
       /* ====================================== */
       mpc_ast_delete(r.output);
     } else {
